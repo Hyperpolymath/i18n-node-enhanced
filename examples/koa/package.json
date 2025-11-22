@@ -1,0 +1,21 @@
+{
+  "name": "i18n-koa-example",
+  "version": "1.0.0",
+  "description": "Koa framework integration example for i18n",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "NODE_ENV=development node index.js",
+    "test": "NODE_ENV=test mocha test.js"
+  },
+  "dependencies": {
+    "i18n": "file:../../",
+    "koa": "^2.14.0",
+    "@koa/router": "^12.0.0",
+    "koa-bodyparser": "^4.4.0"
+  },
+  "devDependencies": {
+    "mocha": "^10.0.0",
+    "supertest": "^6.3.0"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "i18n-fastify-example",
+  "version": "1.0.0",
+  "description": "Fastify framework integration example for i18n",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "NODE_ENV=development node index.js",
+    "test": "NODE_ENV=test mocha test.js"
+  },
+  "dependencies": {
+    "i18n": "file:../../",
+    "fastify": "^4.25.0",
+    "@fastify/cookie": "^9.2.0"
+  },
+  "devDependencies": {
+    "mocha": "^10.0.0",
+    "chai": "^4.3.0"
+  }
+}
