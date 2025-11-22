@@ -1,0 +1,23 @@
+{
+  "name": "i18n-typescript-example",
+  "version": "1.0.0",
+  "description": "TypeScript usage examples for i18n",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "start": "ts-node basic-usage.ts",
+    "start:express": "ts-node express-usage.ts"
+  },
+  "dependencies": {
+    "i18n": "file:../../",
+    "express": "^4.18.0",
+    "cookie-parser": "^1.4.6"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.17",
+    "@types/cookie-parser": "^1.4.3",
+    "@types/node": "^18.0.0",
+    "typescript": "^5.0.0",
+    "ts-node": "^10.9.0"
+  }
+}

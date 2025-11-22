@@ -12,9 +12,11 @@
     "url": "https://github.com/sponsors/mashpie"
   },
   "main": "./index",
+  "types": "./index.d.ts",
   "files": [
     "i18n.js",
     "index.js",
+    "index.d.ts",
     "SECURITY.md"
   ],
   "keywords": [
