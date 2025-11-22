@@ -1,0 +1,83 @@
+name: Performance Benchmarks
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  benchmark:
+    name: Run Benchmarks
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Checkout base branch
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.base_ref }}
+          path: base
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run translation benchmarks
+        run: node benchmarks/translation-bench.js > bench-translation.txt
+
+      - name: Run comparison benchmarks
+        run: node benchmarks/comparison-bench.js > bench-comparison.txt
+
+      - name: Combine benchmark results
+        run: |
+          echo "# Benchmark Results" > benchmark-results.md
+          echo "" >> benchmark-results.md
+          echo "## Translation Benchmarks" >> benchmark-results.md
+          echo "\`\`\`" >> benchmark-results.md
+          cat bench-translation.txt >> benchmark-results.md
+          echo "\`\`\`" >> benchmark-results.md
+          echo "" >> benchmark-results.md
+          echo "## Configuration Comparison" >> benchmark-results.md
+          echo "\`\`\`" >> benchmark-results.md
+          cat bench-comparison.txt >> benchmark-results.md
+          echo "\`\`\`" >> benchmark-results.md
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v3
+        with:
+          name: benchmark-results
+          path: |
+            benchmark-results.md
+            bench-translation.txt
+            bench-comparison.txt
+
+      - name: Comment benchmark results on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const results = fs.readFileSync('benchmark-results.md', 'utf8');
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: results
+            });
+
+      - name: Performance regression check
+        if: github.event_name == 'pull_request'
+        run: |
+          # This is a placeholder for more sophisticated regression checking
+          echo "Performance regression check would run here"
+          echo "Compare current benchmarks with base branch"

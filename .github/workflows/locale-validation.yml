@@ -1,0 +1,112 @@
+name: Locale Validation
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'locales/**'
+      - 'tools/locale-validator.js'
+      - 'tools/missing-translations.js'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'locales/**'
+      - 'tools/**'
+
+jobs:
+  validate-locales:
+    name: Validate Locale Files
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate locale files
+        run: node tools/locale-validator.js --strict --json > validation-results.json
+
+      - name: Display validation results
+        if: always()
+        run: cat validation-results.json | jq '.'
+
+      - name: Upload validation results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: locale-validation-results
+          path: validation-results.json
+
+      - name: Check validation status
+        run: |
+          ERRORS=$(cat validation-results.json | jq '.summary.errors')
+          WARNINGS=$(cat validation-results.json | jq '.summary.warnings')
+
+          echo "Errors: $ERRORS"
+          echo "Warnings: $WARNINGS"
+
+          if [ "$ERRORS" -gt 0 ]; then
+            echo "❌ Locale validation failed with $ERRORS error(s)"
+            exit 1
+          fi
+
+          echo "✅ Locale validation passed"
+
+  translation-coverage:
+    name: Translation Coverage Report
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate coverage report
+        run: node tools/missing-translations.js --format markdown --output coverage-report.md
+
+      - name: Generate JSON report
+        run: node tools/missing-translations.js --format json --output coverage-report.json
+
+      - name: Display coverage summary
+        run: |
+          echo "## Translation Coverage" >> $GITHUB_STEP_SUMMARY
+          cat coverage-report.md >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: translation-coverage
+          path: |
+            coverage-report.md
+            coverage-report.json
+
+      - name: Check coverage threshold
+        run: |
+          # Check if any locale has coverage below 80%
+          LOW_COVERAGE=$(cat coverage-report.json | jq '.locales | to_entries[] | select(.value.coverage < 80) | .key' -r)
+
+          if [ ! -z "$LOW_COVERAGE" ]; then
+            echo "⚠️  Warning: The following locales have coverage below 80%:"
+            echo "$LOW_COVERAGE"
+            echo "Consider adding missing translations"
+          else
+            echo "✅ All locales meet 80% coverage threshold"
+          fi
