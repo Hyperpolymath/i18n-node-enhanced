@@ -1,0 +1,19 @@
+{
+  "name": "@i18n/rescript-bindings",
+  "version": "1.0.0",
+  "description": "ReScript bindings for i18n",
+  "keywords": ["rescript", "i18n", "l10n", "bindings"],
+  "license": "MIT",
+  "scripts": {
+    "build": "rescript",
+    "clean": "rescript clean",
+    "dev": "rescript build -w"
+  },
+  "peerDependencies": {
+    "i18n": "^0.15.3"
+  },
+  "devDependencies": {
+    "rescript": "^11.0.0",
+    "@rescript/core": "^1.0.0"
+  }
+}
