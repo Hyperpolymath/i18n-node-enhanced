@@ -1,0 +1,11 @@
+{
+  "greeting": "Hello %s!",
+  "%s item": {
+    "one": "%s item",
+    "other": "%s items"
+  },
+  "welcome": {
+    "title": "Welcome to NestJS i18n",
+    "description": "Enterprise-grade internationalization for NestJS applications"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "greeting": "Hello %s!",
+  "welcome": {
+    "message": "Welcome to Hono i18n - Ultrafast internationalization!"
+  },
+  "%s item": {
+    "one": "%s item",
+    "other": "%s items"
+  }
+}
