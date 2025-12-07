@@ -1,0 +1,66 @@
+-- GNAT Project file for Polyglot TUI
+-- A formally verified terminal interface for translation management
+
+project Polyglot_TUI is
+
+   for Source_Dirs use ("src", "spec");
+   for Object_Dir use "obj";
+   for Exec_Dir use "bin";
+   for Main use ("polyglot_tui-main.adb");
+
+   type Build_Mode is ("debug", "release", "spark");
+   Mode : Build_Mode := external ("MODE", "debug");
+
+   package Compiler is
+      Common_Switches := ("-gnat2022",     -- Ada 2022 standard
+                          "-gnatwa",        -- All warnings
+                          "-gnatVa",        -- All validity checks
+                          "-gnaty3aAbCdefhiIklnOprstux"); -- Style checks
+
+      case Mode is
+         when "debug" =>
+            for Switches ("Ada") use Common_Switches &
+               ("-g",          -- Debug info
+                "-O0",         -- No optimization
+                "-gnata",      -- Assertions enabled
+                "-gnatf");     -- Full errors
+
+         when "release" =>
+            for Switches ("Ada") use Common_Switches &
+               ("-O3",         -- Full optimization
+                "-gnatn",      -- Inlining enabled
+                "-gnatp");     -- Suppress checks (after SPARK proof)
+
+         when "spark" =>
+            for Switches ("Ada") use Common_Switches &
+               ("-g",
+                "-O0",
+                "-gnata");
+      end case;
+   end Compiler;
+
+   package Binder is
+      for Switches ("Ada") use ("-Es"); -- Symbolic traceback
+   end Binder;
+
+   package Linker is
+      case Mode is
+         when "debug" =>
+            for Switches ("Ada") use ("-g");
+         when "release" =>
+            for Switches ("Ada") use ("-s"); -- Strip symbols
+         when "spark" =>
+            for Switches ("Ada") use ("-g");
+      end case;
+   end Linker;
+
+   package Prove is
+      for Proof_Switches ("Ada") use
+         ("--level=2",           -- Medium proof effort
+          "--timeout=30",        -- 30 second timeout per VC
+          "--memlimit=2000",     -- 2GB memory limit
+          "--steps=10000",       -- Max proof steps
+          "--counterexamples=on");
+   end Prove;
+
+end Polyglot_TUI;
