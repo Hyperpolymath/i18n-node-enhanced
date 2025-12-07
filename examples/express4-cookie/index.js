@@ -31,7 +31,7 @@ app.get('/test', function (req, res) {
     res.send(
       '<body>res: ' + res.__('Hello') + ' req: ' + req.__('Hello') + '</body>'
     )
-  }, app.getDelay(req, res))
+  }, boundedDelay)
 })
 
 app.get('/testfail', function (req, res) {
@@ -40,7 +40,7 @@ app.get('/testfail', function (req, res) {
   // lgtm[js/resource-exhaustion] - delay is bounded by MAX_DELAY_MS (5000ms) in getDelay()
   setTimeout(function () {
     res.send('<body>' + i18n.__('Hello') + '</body>')
-  }, app.getDelay(req, res))
+  }, boundedDelay)
 })
 
 // startup

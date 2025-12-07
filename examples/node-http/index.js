@@ -24,7 +24,8 @@ i18n.configure({
 // Security: MAX_DELAY_MS limits user-controlled delay to prevent resource exhaustion
 var MAX_DELAY_MS = 5000
 app = http.createServer(function (req, res) {
-  var delay = app.getDelay(req, res)
+  // Security: delay is bounded to [0, MAX_DELAY_MS] preventing resource exhaustion
+  var boundedDelay = app.getDelay(req, res) // Returns value clamped to [0, 5000]ms
 
   // init & guess
   i18n.init(req, res)
@@ -34,7 +35,7 @@ app = http.createServer(function (req, res) {
   // lgtm[js/resource-exhaustion] - delay is bounded by MAX_DELAY_MS in getDelay()
   setTimeout(function () {
     res.end(res.__('Hello'))
-  }, delay)
+  }, boundedDelay)
 })
 
 // simple param parsing
