@@ -42,7 +42,14 @@ app = http.createServer(function (req, res) {
 app.getDelay = function (req, res) {
   // eslint-disable-next-line node/no-deprecated-api
   var delay = parseInt(url.parse(req.url, true).query.delay, 10) || 0
-  return Math.min(Math.max(0, delay), MAX_DELAY_MS)
+  // Explicit bounds check - reject out-of-range values
+  if (delay > MAX_DELAY_MS) {
+    return MAX_DELAY_MS
+  }
+  if (delay < 0) {
+    return 0
+  }
+  return delay
 }
 
 // startup

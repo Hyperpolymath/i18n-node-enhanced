@@ -70,7 +70,69 @@ package Polyglot_TUI.Catalog is
        Key : Key_String)
       with Pre  => Has_Key (Cat, Key) and Cat.Count > 0,
            Post => Cat.Count = Cat.Count'Old - 1 and
-                   not Has_Key (Cat, Key);
+                   not Has_Key (CatResource exhaustion
+Open in main 1 minute ago
+
+Copilot Autofix for CodeQL attempted to generate an autofix for this alert, but wasn't able to. Please retry.
+Code snippet
+examples/node-http/index.js:38
+  // lgtm[js/resource-exhaustion] - delay is bounded by MAX_DELAY_MS in getDelay()
+  setTimeout(function () {
+    res.end(res.__('Hello'))
+  }, boundedDelay)
+This creates a timer with a user-controlled duration from a .
+CodeQL
+})
+
+// simple param parsing
+Rule
+Tool
+CodeQL
+Rule ID
+js/resource-exhaustion
+Query
+View source
+Description
+
+Applications are constrained by how many resources they can make use of. Failing to respect these constraints may cause the application to be unresponsive or crash. It is therefore problematic if attackers can control the sizes or lifetimes of allocated objects.
+Activity
+First detected in commit 2 minutes ago
+@hyperpolymath
+Merge 01f2a4f into faff11c
+a707b04
+examples/node-http/ index.js:38 on branch refs/pull/18/merge
+Appeared in branch main 1 minute ago
+Security #40: Commit 116251c4
+Alert metadata
+Severity
+High
+Assignees
+Preview
+No one -
+Affected branches
+
+Link a branch, pull request, or
+to start working on this alert.
+Tags
+security
+Weaknesses
+Weakness CWE-400
+Weakness CWE-400
+Weakness CWE-770
+Weakness CWE-770
+Footer
+© 2025 GitHub, Inc.
+Footer navigation
+
+    Terms
+    Privacy
+    Security
+    Status
+    Community
+    Docs
+    Contact
+
+, Key);
 
    procedure Clear (Cat : in out Catalog)
       with Post => Cat.Count = 0;
