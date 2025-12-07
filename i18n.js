@@ -23,6 +23,22 @@ const parseInterval = require('math-interval-parser').default
 // utils
 const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') // $& means the whole matched string
 
+// Security: Prevent prototype pollution by checking for dangerous property names
+const DANGEROUS_KEYS = new Set(['__proto__', 'constructor', 'prototype'])
+const isSafeKey = (key) => {
+  if (typeof key !== 'string') return false
+  return !DANGEROUS_KEYS.has(key)
+}
+
+// Security: Validate locale to prevent path traversal
+const SAFE_LOCALE_PATTERN = /^[a-zA-Z]{2,3}(?:[-_][a-zA-Z]{2,4})?$/
+const isSafeLocale = (locale) => {
+  if (typeof locale !== 'string') return false
+  // Locale must match pattern like 'en', 'en-US', 'zh_CN', 'pt-BR'
+  // and must not contain path separators or traversal sequences
+  return SAFE_LOCALE_PATTERN.test(locale) && !locale.includes('.') && !locale.includes('/')
+}
+
 /**
  * create constructor function
  */
@@ -457,7 +473,13 @@ const i18n = function I18n(_OPTS = false) {
       }
 
       // fallback to 'other' on case of missing translations
-      msg = msg[p(count)] || msg.other
+      // Security: validate plural key before using as property accessor
+      const pluralKey = p(count)
+      if (isSafeKey(pluralKey) && Object.prototype.hasOwnProperty.call(msg, pluralKey)) {
+        msg = msg[pluralKey]
+      } else {
+        msg = msg.other
+      }
     }
 
     // head over to postProcessing
@@ -1110,6 +1132,10 @@ const i18n = function I18n(_OPTS = false) {
       singular.split(objectNotation).reduce((object, index) => {
         // Make the accessor return null.
         accessor = nullAccessor
+        // Security: prevent prototype pollution by rejecting dangerous keys
+        if (!isSafeKey(index)) {
+          return null
+        }
         // If our current target object (in the locale tree) doesn't exist or
         // it doesn't have the next subterm as a member...
         if (
@@ -1134,6 +1160,10 @@ const i18n = function I18n(_OPTS = false) {
         reTraverse ? localeAccessor(locale, singular, false)() : accessor()
     } else {
       // No object notation, just return an accessor that performs array lookup.
+      // Security: prevent prototype pollution by rejecting dangerous keys
+      if (!isSafeKey(singular)) {
+        return () => null
+      }
       return () => locales[locale][singular]
     }
   }
@@ -1172,6 +1202,11 @@ const i18n = function I18n(_OPTS = false) {
       singular.split(objectNotation).reduce((object, index) => {
         // Make the mutator do nothing.
         accessor = nullAccessor
+        // Security: prevent prototype pollution by rejecting dangerous keys
+        if (!isSafeKey(index)) {
+          reTraverse = false
+          return null
+        }
         // If our current target object (in the locale tree) doesn't exist or
         // it doesn't have the next subterm as a member...
         if (
@@ -1222,6 +1257,10 @@ const i18n = function I18n(_OPTS = false) {
     } else {
       // No object notation, just return a mutator that performs array lookup and changes the value.
       return (value) => {
+        // Security: prevent prototype pollution by rejecting dangerous keys
+        if (!isSafeKey(singular)) {
+          return value
+        }
         value = missingKeyFn(locale, value)
         locales[locale][singular] = value
         return value
@@ -1235,6 +1274,11 @@ const i18n = function I18n(_OPTS = false) {
   const read = (locale) => {
     let localeFile = {}
     const file = getStorageFilePath(locale)
+    // Security: bail out if file path is invalid (path traversal attempt)
+    if (!file) {
+      logError('Skipping read for invalid locale: ' + locale)
+      return
+    }
     try {
       logDebug('read ' + file + ' for locale: ' + locale)
       localeFile = fs.readFileSync(file, 'utf-8')
@@ -1298,6 +1342,11 @@ const i18n = function I18n(_OPTS = false) {
     // writing to tmp and rename on success
     try {
       target = getStorageFilePath(locale)
+      // Security: bail out if file path is invalid (path traversal attempt)
+      if (!target) {
+        logError('Skipping write for invalid locale: ' + locale)
+        return
+      }
       tmp = target + '.tmp'
       fs.writeFileSync(
         tmp,
@@ -1332,15 +1381,28 @@ const i18n = function I18n(_OPTS = false) {
    * basic normalization of filepath
    */
   const getStorageFilePath = (locale) => {
+    // Security: validate locale to prevent path traversal attacks
+    if (!isSafeLocale(locale)) {
+      logError('Invalid locale format: ' + locale)
+      return null
+    }
     // changed API to use .json as default, #16
     const ext = extension || '.json'
     const filepath = path.normalize(directory + pathsep + prefix + locale + ext)
     const filepathJS = path.normalize(
       directory + pathsep + prefix + locale + '.js'
     )
+    // Security: ensure the resolved path is within the expected directory
+    const resolvedDir = path.resolve(directory)
+    const resolvedPath = path.resolve(filepath)
+    const resolvedPathJS = path.resolve(filepathJS)
+    if (!resolvedPath.startsWith(resolvedDir + path.sep) && resolvedPath !== resolvedDir) {
+      logError('Path traversal attempt detected for locale: ' + locale)
+      return null
+    }
     // use .js as fallback if already existing
     try {
-      if (fs.statSync(filepathJS)) {
+      if (resolvedPathJS.startsWith(resolvedDir + path.sep) && fs.statSync(filepathJS)) {
         logDebug('using existing file ' + filepathJS)
         extension = '.js'
         return filepathJS
@@ -1359,7 +1421,10 @@ const i18n = function I18n(_OPTS = false) {
     if (fallbacks[targetLocale]) return fallbacks[targetLocale]
     let fallBackLocale = null
     for (const key in fallbacks) {
-      if (targetLocale.match(new RegExp('^' + key.replace('*', '.*') + '$'))) {
+      // Security: properly escape regex special characters before converting wildcard to regex
+      // First escape all special chars, then replace escaped \* with .*
+      const escapedKey = escapeRegExp(key).replace('\\*', '.*')
+      if (targetLocale.match(new RegExp('^' + escapedKey + '$'))) {
         fallBackLocale = fallbacks[key]
         break
       }

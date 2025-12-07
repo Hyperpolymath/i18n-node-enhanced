@@ -36,9 +36,12 @@ app = http.createServer(function (req, res) {
 })
 
 // simple param parsing
+// Security: limit max delay to prevent resource exhaustion attacks
+var MAX_DELAY_MS = 5000
 app.getDelay = function (req, res) {
   // eslint-disable-next-line node/no-deprecated-api
-  return url.parse(req.url, true).query.delay || 0
+  var delay = parseInt(url.parse(req.url, true).query.delay, 10) || 0
+  return Math.min(Math.max(0, delay), MAX_DELAY_MS)
 }
 
 // startup

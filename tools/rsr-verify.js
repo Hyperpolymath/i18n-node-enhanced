@@ -126,11 +126,29 @@ const checks = {
         name: 'No network dependencies in core',
         fn: () => {
           const coreFiles = ['i18n.js', 'index.js'];
+          // Security: properly validate that URLs are only from allowed domains
+          // The previous check using .includes('example.com') was vulnerable to bypasses
+          // like http://example.com.evil.com/
+          const urlPattern = /https?:\/\/[^\s"')]+/g;
+          const isAllowedUrl = (urlString) => {
+            try {
+              const parsed = new URL(urlString);
+              const hostname = parsed.hostname.toLowerCase();
+              // Only allow exact match or subdomain of example.com
+              return hostname === 'example.com' || hostname.endsWith('.example.com');
+            } catch (e) {
+              // If URL parsing fails, consider it suspicious
+              return false;
+            }
+          };
           for (const file of coreFiles) {
             if (!exists(file)) continue;
             const content = fs.readFileSync(file, 'utf-8');
-            if (content.match(/http:\/\/|https:\/\//) && !content.includes('example.com')) {
-              return false;
+            const urls = content.match(urlPattern) || [];
+            for (const url of urls) {
+              if (!isAllowedUrl(url)) {
+                return false;
+              }
             }
           }
           return true;
