@@ -8,31 +8,6 @@ pragma SPARK_Mode (On);
 
 package body Polyglot_TUI.Catalog is
 
-   --  Default empty translation for initialization
-   Default_Translation : constant Translation_Entry :=
-      (Kind => Simple,
-       Value => Empty_Translation);
-
-   --  Default empty catalog entry for array initialization
-   Default_Entry : constant Catalog_Entry :=
-      (Key         => Empty_Key,
-       Translation => Default_Translation,
-       Modified    => False,
-       Missing     => True);
-
-   function Empty (Locale : Locale_String) return Catalog is
-   begin
-      return (Locale  => Locale,
-              Entries => (others => Default_Entry),
-              Count   => 0,
-              Dirty   => False);
-   end Empty;
-
-   function Get_Locale (Cat : Catalog) return Locale_String is
-   begin
-      return Cat.Locale;
-   end Get_Locale;
-
    function Is_Empty (Cat : Catalog) return Boolean is
    begin
       return Cat.Count = 0;

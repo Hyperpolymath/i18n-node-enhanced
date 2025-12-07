@@ -24,6 +24,10 @@ i18n.configure({
 // simple server
 app = http.createServer(function (req, res) {
   var delay = app.getDelay(req, res)
+  if (delay < 0) {
+    // getDelay already handled response for invalid delay
+    return;
+  }
 
   // init & guess
   i18n.init(req, res)
@@ -36,12 +40,17 @@ app = http.createServer(function (req, res) {
 })
 
 // simple param parsing
-// Security: limit max delay to prevent resource exhaustion attacks
-var MAX_DELAY_MS = 5000
+// Security: limit max delay to prevent resource exhaustion attacks (reduced to 1000ms)
+var MAX_DELAY_MS = 1000
 app.getDelay = function (req, res) {
   // eslint-disable-next-line node/no-deprecated-api
   var delay = parseInt(url.parse(req.url, true).query.delay, 10) || 0
-  return Math.min(Math.max(0, delay), MAX_DELAY_MS)
+  if (delay > MAX_DELAY_MS) {
+    res.statusCode = 400;
+    res.end('Bad request: delay exceeds limit.');
+    return -1; // caller should check for -1 return value
+  }
+  return Math.max(0, delay)
 }
 
 // startup

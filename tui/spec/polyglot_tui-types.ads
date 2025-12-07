@@ -67,14 +67,12 @@ package Polyglot_TUI.Types is
 
    --  TUI view modes
    type View_Mode is
-      (Catalog_Browser,    -- Browse loaded catalogs
-       Key_Browser,        -- Browse translation keys in catalog
-       Key_Editor,         -- Edit a translation
+      (Catalog_Browser,    -- Browse translation keys
+       Translation_Editor, -- Edit a translation
        Locale_Selector,    -- Select active locale
        Search_View,        -- Search translations
        Diff_View,          -- Compare locales
        Statistics_View,    -- Coverage statistics
-       Settings_View,      -- Application settings
        Help_View);         -- Help screen
 
    --  TUI state
@@ -111,11 +109,5 @@ package Polyglot_TUI.Types is
 
    function From_Translation_String (T : Translation_String) return String
       with Post => From_Translation_String'Result'Length = T.Length;
-
-   --  Convenience aliases
-   function To_String (L : Locale_String) return String renames From_Locale_String;
-   function To_String (K : Key_String) return String renames From_Key_String;
-   function To_Locale (S : String) return Locale_String renames To_Locale_String;
-   function To_Key (S : String) return Key_String renames To_Key_String;
 
 end Polyglot_TUI.Types;

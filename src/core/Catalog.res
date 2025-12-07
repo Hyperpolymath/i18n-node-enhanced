@@ -2,8 +2,10 @@
   Catalog - Immutable translation catalog with structural sharing
 
   Catalogs are immutable data structures that hold translations.
-  Uses Dict for O(1) key lookup.
+  Updates create new catalogs sharing unchanged structure.
 ")
+
+open Locale
 
 @ocaml.doc("A translation value - either a simple string or plural forms")
 type rec translationValue =
@@ -17,26 +19,24 @@ type rec translationValue =
       other: string,
     })
   | Nested(translations)
-and translations = Dict.t<translationValue>
+and translations = Belt.Map.String.t<translationValue>
 
-@ocaml.doc("Catalog metadata")
-type metadata = {
+@ocaml.doc("A catalog holds translations for a single locale")
+type t = {
+  locale: Locale.t,
+  translations: translations,
+  metadata: metadata,
+}
+and metadata = {
   version: option<string>,
   lastModified: option<float>,
   source: option<string>,
 }
 
-@ocaml.doc("A catalog holds translations for a single locale")
-type t = {
-  locale: string,
-  translations: translations,
-  metadata: metadata,
-}
-
 @ocaml.doc("Create an empty catalog for a locale")
-let empty = (locale: string): t => {
+let empty = (locale: Locale.t): t => {
   locale,
-  translations: Dict.make(),
+  translations: Belt.Map.String.empty,
   metadata: {
     version: None,
     lastModified: None,
@@ -48,24 +48,19 @@ let empty = (locale: string): t => {
 let get = (catalog: t, key: string): option<translationValue> => {
   let parts = key->String.split(".")
 
-  let rec traverse = (translations: translations, path: array<string>, idx: int): option<translationValue> => {
-    if idx >= Array.length(path) {
-      None
-    } else if idx == Array.length(path) - 1 {
-      translations->Dict.get(path[idx]->Option.getOr(""))
-    } else {
-      switch translations->Dict.get(path[idx]->Option.getOr("")) {
-      | Some(Nested(nested)) => traverse(nested, path, idx + 1)
+  let rec traverse = (translations: translations, path: array<string>): option<translationValue> => {
+    switch path {
+    | [] => None
+    | [single] => translations->Belt.Map.String.get(single)
+    | [head, ...rest] =>
+      switch translations->Belt.Map.String.get(head) {
+      | Some(Nested(nested)) => traverse(nested, rest)
       | _ => None
       }
     }
   }
 
-  if Array.length(parts) == 0 {
-    None
-  } else {
-    traverse(catalog.translations, parts, 0)
-  }
+  traverse(catalog.translations, parts)
 }
 
 @ocaml.doc("Get a simple string translation")
@@ -79,16 +74,33 @@ let getString = (catalog: t, key: string): option<string> => {
 
 @ocaml.doc("Set a translation, returning a new catalog")
 let set = (catalog: t, key: string, value: translationValue): t => {
-  // For simplicity, only handle single-level keys for now
-  let newTranslations = Dict.copy(catalog.translations)
-  newTranslations->Dict.set(key, value)
+  let parts = key->String.split(".")
+
+  let rec updateNested = (
+    translations: translations,
+    path: array<string>,
+    value: translationValue,
+  ): translations => {
+    switch path {
+    | [] => translations
+    | [single] => translations->Belt.Map.String.set(single, value)
+    | [head, ...rest] => {
+        let existing = switch translations->Belt.Map.String.get(head) {
+        | Some(Nested(nested)) => nested
+        | _ => Belt.Map.String.empty
+        }
+        let updated = updateNested(existing, rest, value)
+        translations->Belt.Map.String.set(head, Nested(updated))
+      }
+    }
+  }
 
   {
     ...catalog,
-    translations: newTranslations,
+    translations: updateNested(catalog.translations, parts, value),
     metadata: {
       ...catalog.metadata,
-      lastModified: Some(Date.now()),
+      lastModified: Some(Js.Date.now()),
     },
   }
 }
@@ -98,41 +110,59 @@ let has = (catalog: t, key: string): bool => get(catalog, key)->Option.isSome
 
 @ocaml.doc("Get all keys in the catalog (flattened)")
 let keys = (catalog: t): array<string> => {
-  Dict.keysToArray(catalog.translations)
+  let rec collect = (translations: translations, prefix: string): array<string> => {
+    translations
+    ->Belt.Map.String.toArray
+    ->Array.flatMap(((key, value)) => {
+      let fullKey = prefix == "" ? key : `${prefix}.${key}`
+      switch value {
+      | Simple(_) | Plural(_) => [fullKey]
+      | Nested(nested) => collect(nested, fullKey)
+      }
+    })
+  }
+  collect(catalog.translations, "")
 }
 
 @ocaml.doc("Merge two catalogs, with the second taking precedence")
 let merge = (base: t, overlay: t): t => {
-  let result: translations = Dict.copy(base.translations)
+  let rec mergeTranslations = (a: translations, b: translations): translations => {
+    let allKeys =
+      Array.concat(
+        a->Belt.Map.String.keysToArray,
+        b->Belt.Map.String.keysToArray,
+      )->Belt.Set.String.fromArray->Belt.Set.String.toArray
 
-  let overlayKeys = Dict.keysToArray(overlay.translations)
-  overlayKeys->Array.forEach(key => {
-    switch overlay.translations->Dict.get(key) {
-    | Some(value) => result->Dict.set(key, value)
-    | None => ()
-    }
-  })
+    allKeys->Array.reduce(Belt.Map.String.empty, (acc, key) => {
+      let value = switch (a->Belt.Map.String.get(key), b->Belt.Map.String.get(key)) {
+      | (_, Some(v)) => v
+      | (Some(v), None) => v
+      | (None, None) => Simple("") // unreachable
+      }
+      acc->Belt.Map.String.set(key, value)
+    })
+  }
 
   {
     locale: overlay.locale,
-    translations: result,
+    translations: mergeTranslations(base.translations, overlay.translations),
     metadata: overlay.metadata,
   }
 }
 
 @ocaml.doc("Parse a catalog from JSON")
-let fromJson = (locale: string, json: JSON.t): result<t, string> => {
-  let rec parseValue = (json: JSON.t): option<translationValue> => {
-    switch json {
-    | JSON.String(s) => Some(Simple(s))
-    | JSON.Object(obj) => {
+let fromJson = (locale: Locale.t, json: Js.Json.t): result<t, string> => {
+  let rec parseValue = (json: Js.Json.t): option<translationValue> => {
+    switch Js.Json.classify(json) {
+    | Js.Json.JSONString(s) => Some(Simple(s))
+    | Js.Json.JSONObject(obj) => {
         // Check if it's plural forms or nested
-        let hasPlural = obj->Dict.get("other")->Option.isSome
+        let hasPlural = obj->Js.Dict.get("other")->Option.isSome
         if hasPlural {
           let getStr = key =>
-            obj->Dict.get(key)->Option.flatMap(v =>
-              switch v {
-              | JSON.String(s) => Some(s)
+            obj->Js.Dict.get(key)->Option.flatMap(v =>
+              switch Js.Json.classify(v) {
+              | Js.Json.JSONString(s) => Some(s)
               | _ => None
               }
             )
@@ -152,13 +182,15 @@ let fromJson = (locale: string, json: JSON.t): result<t, string> => {
           }
         } else {
           // Nested translations
-          let nested = Dict.make()
-          obj->Dict.forEachWithKey((value, key) => {
-            switch parseValue(value) {
-            | Some(v) => nested->Dict.set(key, v)
-            | None => ()
-            }
-          })
+          let nested =
+            obj
+            ->Js.Dict.entries
+            ->Array.reduce(Belt.Map.String.empty, (acc, (key, value)) => {
+              switch parseValue(value) {
+              | Some(v) => acc->Belt.Map.String.set(key, v)
+              | None => acc
+              }
+            })
           Some(Nested(nested))
         }
       }
@@ -166,21 +198,23 @@ let fromJson = (locale: string, json: JSON.t): result<t, string> => {
     }
   }
 
-  switch json {
-  | JSON.Object(obj) => {
-      let translations = Dict.make()
-      obj->Dict.forEachWithKey((value, key) => {
-        switch parseValue(value) {
-        | Some(v) => translations->Dict.set(key, v)
-        | None => ()
-        }
-      })
+  switch Js.Json.classify(json) {
+  | Js.Json.JSONObject(obj) => {
+      let translations =
+        obj
+        ->Js.Dict.entries
+        ->Array.reduce(Belt.Map.String.empty, (acc, (key, value)) => {
+          switch parseValue(value) {
+          | Some(v) => acc->Belt.Map.String.set(key, v)
+          | None => acc
+          }
+        })
       Ok({
         locale,
         translations,
         metadata: {
           version: None,
-          lastModified: Some(Date.now()),
+          lastModified: Some(Js.Date.now()),
           source: None,
         },
       })
@@ -190,33 +224,33 @@ let fromJson = (locale: string, json: JSON.t): result<t, string> => {
 }
 
 @ocaml.doc("Serialize a catalog to JSON")
-let toJson = (catalog: t): JSON.t => {
-  let rec valueToJson = (value: translationValue): JSON.t => {
+let toJson = (catalog: t): Js.Json.t => {
+  let rec valueToJson = (value: translationValue): Js.Json.t => {
     switch value {
-    | Simple(s) => JSON.String(s)
+    | Simple(s) => Js.Json.string(s)
     | Plural({zero, one, two, few, many, other}) => {
-        let obj = Dict.make()
-        zero->Option.forEach(v => obj->Dict.set("zero", JSON.String(v)))
-        one->Option.forEach(v => obj->Dict.set("one", JSON.String(v)))
-        two->Option.forEach(v => obj->Dict.set("two", JSON.String(v)))
-        few->Option.forEach(v => obj->Dict.set("few", JSON.String(v)))
-        many->Option.forEach(v => obj->Dict.set("many", JSON.String(v)))
-        obj->Dict.set("other", JSON.String(other))
-        JSON.Object(obj)
+        let obj = Js.Dict.empty()
+        zero->Option.forEach(v => obj->Js.Dict.set("zero", Js.Json.string(v)))
+        one->Option.forEach(v => obj->Js.Dict.set("one", Js.Json.string(v)))
+        two->Option.forEach(v => obj->Js.Dict.set("two", Js.Json.string(v)))
+        few->Option.forEach(v => obj->Js.Dict.set("few", Js.Json.string(v)))
+        many->Option.forEach(v => obj->Js.Dict.set("many", Js.Json.string(v)))
+        obj->Js.Dict.set("other", Js.Json.string(other))
+        Js.Json.object_(obj)
       }
     | Nested(nested) => {
-        let obj = Dict.make()
-        nested->Dict.forEachWithKey((value, key) => {
-          obj->Dict.set(key, valueToJson(value))
+        let obj = Js.Dict.empty()
+        nested->Belt.Map.String.forEach((key, value) => {
+          obj->Js.Dict.set(key, valueToJson(value))
         })
-        JSON.Object(obj)
+        Js.Json.object_(obj)
       }
     }
   }
 
-  let obj = Dict.make()
-  catalog.translations->Dict.forEachWithKey((value, key) => {
-    obj->Dict.set(key, valueToJson(value))
+  let obj = Js.Dict.empty()
+  catalog.translations->Belt.Map.String.forEach((key, value) => {
+    obj->Js.Dict.set(key, valueToJson(value))
   })
-  JSON.Object(obj)
+  Js.Json.object_(obj)
 }
