@@ -1,0 +1,676 @@
+= i18n-node-enhanced: Architectural Transformation Roadmap
+:toc: macro
+:toc-title: Table of Contents
+:toclevels: 4
+:sectnums:
+:icons: font
+:source-highlighter: rouge
+:experimental:
+
+[.lead]
+A comprehensive roadmap for transforming i18n-node-enhanced into a polyglot, Guix-first, security-hardened internationalization platform.
+
+toc::[]
+
+== Executive Summary
+
+This roadmap outlines the strategic transformation of i18n-node-enhanced from a Node.js-centric library into a modern, polyglot internationalization platform featuring:
+
+* **ReScript-first architecture** with minimal JavaScript surface
+* **WebAssembly performance core** for compute-intensive operations
+* **Deno runtime primary** with npm compatibility layer
+* **Guix channels primary** with Nix flake fallback
+* **Chainguard Wolfi containers** for supply-chain security
+* **Nickel configuration** for type-safe, programmable configs
+* **Comprehensive CLI** with exhaustive option permutations
+
+== Phase 1: Foundation (Weeks 1-2)
+
+=== 1.1 Guix Channel Infrastructure
+
+[source,scheme]
+----
+;; Primary package management via Guix channels
+;; Ensures reproducibility and supply-chain integrity
+----
+
+.Deliverables
+* [ ] `guix.scm` - Package definition
+* [ ] `channels.scm` - Channel configuration
+* [ ] `.guix-channel` - Channel metadata
+* [ ] `manifest.scm` - Development manifest
+* [ ] Integration with Guix System services
+
+.Architecture Decision Records
+[cols="1,3"]
+|===
+|ADR-001 |Guix channels as primary package source
+|ADR-002 |Nix flakes as fallback mechanism
+|ADR-003 |Content-addressed storage strategy
+|===
+
+=== 1.2 Nix Fallback Layer
+
+[source,nix]
+----
+{
+  inputs = {
+    guix-compat.url = "github:nix-community/guix-nixpkgs";
+    # Fallback when Guix unavailable
+  };
+}
+----
+
+.Integration Points
+* Flake outputs compatible with Guix packages
+* Shared derivation specifications
+* Cross-platform development shells
+
+=== 1.3 Chainguard Wolfi Container
+
+.Security Properties
+* Minimal attack surface (wolfi-base)
+* SBOM generation
+* Signature verification
+* Distroless final stage
+
+[source,dockerfile]
+----
+FROM cgr.dev/chainguard/wolfi-base:latest AS builder
+# Build stage with full toolchain
+
+FROM cgr.dev/chainguard/static:latest AS runtime
+# Minimal runtime with only binary
+----
+
+== Phase 2: Language Transformation (Weeks 3-6)
+
+=== 2.1 ReScript Core Implementation
+
+.Migration Strategy
+[plantuml, rescript-migration, svg]
+....
+@startuml
+package "Current State" {
+  [i18n.js] as js
+  [bindings/rescript/I18n.res] as res_bind
+}
+
+package "Target State" {
+  [src/core/I18n.res] as core
+  [src/runtime/Platform.res] as platform
+  [src/wasm/Bridge.res] as wasm_bridge
+  [generated/i18n.js] as gen_js
+}
+
+js --> core : migrate
+res_bind --> core : absorb
+core --> gen_js : compile
+core --> wasm_bridge : FFI
+@enduml
+....
+
+.ReScript Module Structure
+[source]
+----
+src/
+├── core/
+│   ├── I18n.res              # Main API
+│   ├── Locale.res            # Locale management
+│   ├── Catalog.res           # Translation catalog
+│   ├── Plural.res            # CLDR plural rules
+│   ├── MessageFormat.res     # ICU MessageFormat
+│   └── Interpolation.res     # String interpolation
+├── runtime/
+│   ├── Platform.res          # Runtime detection
+│   ├── FileSystem.res        # File I/O abstraction
+│   ├── Cache.res             # Caching layer
+│   └── Watcher.res           # File watching
+├── wasm/
+│   ├── Bridge.res            # WASM FFI bindings
+│   ├── PluralEngine.res      # WASM plural calc
+│   └── HashTable.res         # WASM hash lookup
+├── adapters/
+│   ├── Express.res
+│   ├── Deno.res
+│   ├── Bun.res
+│   └── Cloudflare.res
+└── cli/
+    ├── Main.res
+    ├── Commands.res
+    └── Options.res
+----
+
+=== 2.2 WebAssembly Performance Core
+
+.WASM Module Strategy
+[cols="1,2,1"]
+|===
+|Module |Purpose |Performance Gain
+
+|`plural-engine.wasm`
+|CLDR plural rule evaluation
+|~10x faster than JS
+
+|`hash-lookup.wasm`
+|Translation key lookup
+|~5x faster for large catalogs
+
+|`interpolate.wasm`
+|String interpolation
+|~3x faster with many variables
+
+|`validate.wasm`
+|ICU syntax validation
+|Eliminates parsing overhead
+|===
+
+.Rust WASM Implementation
+[source,rust]
+----
+#[wasm_bindgen]
+pub fn evaluate_plural(n: f64, locale: &str) -> PluralCategory {
+    // High-performance CLDR plural evaluation
+}
+----
+
+=== 2.3 Deno Primary Runtime
+
+.Deno Module Architecture
+[source,typescript]
+----
+// deno.json - Import map configuration
+{
+  "imports": {
+    "i18n/": "./src/",
+    "i18n/wasm": "./wasm/pkg/",
+    "std/": "https://deno.land/std@0.224.0/"
+  }
+}
+----
+
+.npm Compatibility
+* `npm:` specifiers for legacy dependencies
+* Shim layer for Node.js-specific APIs
+* Gradual migration path for existing users
+
+== Phase 3: Configuration & CLI (Weeks 7-10)
+
+=== 3.1 Nickel Configuration System
+
+.Nickel Schema
+[source,nickel]
+----
+# i18n.ncl - Type-safe configuration
+let I18nConfig = {
+  locales : Array String,
+  defaultLocale : String,
+  fallbacks : { _ : String },
+
+  # Advanced configuration
+  catalog : {
+    directory : String,
+    extension : String,
+    parser : [| 'json, 'yaml, 'toml |],
+    autoReload : Bool,
+    syncFiles : Bool,
+  },
+
+  # Runtime options
+  runtime : {
+    wasm : Bool,
+    cache : {
+      enabled : Bool,
+      maxSize : Number,
+      ttl : Number,
+    },
+  },
+
+  # Validation
+  validation : {
+    strict : Bool,
+    allowMissingKeys : Bool,
+    reportLevel : [| 'error, 'warn, 'info |],
+  },
+} in
+
+# Combinatorial option generation
+let combinations = fun config =>
+  config
+  |> std.record.map (fun k v =>
+    if std.is_record v then
+      combinations v
+    else
+      v
+  )
+in
+
+{
+  Config = I18nConfig,
+  validate = fun c => c & I18nConfig,
+  combinations = combinations,
+}
+----
+
+.Configuration Merging
+[source,nickel]
+----
+# Layered configuration with validation
+let base = import "i18n-base.ncl" in
+let env = import "i18n-${std.env.ENV}.ncl" in
+let local = import "i18n-local.ncl" in
+
+base & env & local
+----
+
+=== 3.2 Comprehensive CLI
+
+.Command Structure
+[source]
+----
+i18n <command> [subcommand] [options]
+
+Commands:
+  init        Initialize i18n configuration
+  translate   Translate text or files
+  validate    Validate locale files
+  sync        Synchronize translations
+  extract     Extract translatable strings
+  compile     Compile translation catalogs
+  serve       Start translation server
+  migrate     Migrate between formats
+  benchmark   Run performance benchmarks
+  config      Manage configuration
+  doctor      Diagnose issues
+----
+
+.Option Permutations
+[cols="1,1,3"]
+|===
+|Category |Options |Combinations
+
+|Output
+|`--format`, `--output`, `--quiet`, `--verbose`, `--color`
+|json, yaml, table, csv, md × stdout, file × 3 verbosity levels × color modes = 90+
+
+|Locale
+|`--locale`, `--fallback`, `--all`, `--default`
+|Per-locale × fallback chains × batch modes = 500+
+
+|Processing
+|`--parallel`, `--workers`, `--batch`, `--incremental`
+|Parallelism levels × worker counts × batch sizes = 100+
+
+|Validation
+|`--strict`, `--lenient`, `--ignore`, `--only`
+|Validation modes × rule combinations = 200+
+|===
+
+.Man Page Structure
+[source]
+----
+man/
+├── man1/
+│   ├── i18n.1           # Main command
+│   ├── i18n-init.1      # Initialization
+│   ├── i18n-translate.1 # Translation
+│   ├── i18n-validate.1  # Validation
+│   ├── i18n-sync.1      # Synchronization
+│   ├── i18n-extract.1   # Extraction
+│   ├── i18n-compile.1   # Compilation
+│   ├── i18n-serve.1     # Server mode
+│   ├── i18n-migrate.1   # Migration
+│   ├── i18n-benchmark.1 # Benchmarking
+│   ├── i18n-config.1    # Configuration
+│   └── i18n-doctor.1    # Diagnostics
+├── man5/
+│   ├── i18n.ncl.5       # Nickel config format
+│   ├── i18n.json.5      # JSON catalog format
+│   └── i18n.yaml.5      # YAML catalog format
+└── man7/
+    ├── i18n-tutorial.7  # Getting started
+    ├── i18n-icu.7       # ICU MessageFormat guide
+    └── i18n-plural.7    # Plural rules guide
+----
+
+== Phase 4: Testing & Quality (Weeks 11-14)
+
+=== 4.1 Testing Framework Maximization
+
+.Test Matrix
+[cols="1,2,2"]
+|===
+|Layer |Framework |Coverage Target
+
+|Unit (ReScript)
+|`rescript-test` + custom assertions
+|100% line coverage
+
+|Unit (WASM)
+|`wasm-bindgen-test` + proptest
+|100% function coverage
+
+|Integration
+|Deno.test + Oak testing
+|All API endpoints
+
+|E2E
+|Playwright + custom CLI harness
+|All user workflows
+
+|Performance
+|Criterion.rs + Deno.bench
+|All hot paths
+
+|Fuzz
+|cargo-fuzz + afl.rs
+|Parser, interpolation
+
+|Property
+|fast-check (ReScript)
+|All pure functions
+
+|Mutation
+|Stryker
+|>90% mutation score
+
+|Contract
+|Pact
+|All external APIs
+|===
+
+.Test Organization
+[source]
+----
+tests/
+├── unit/
+│   ├── rescript/          # ReScript unit tests
+│   ├── wasm/              # WASM unit tests
+│   └── fixtures/          # Shared test fixtures
+├── integration/
+│   ├── deno/              # Deno integration
+│   ├── node/              # Node.js compatibility
+│   └── bun/               # Bun runtime
+├── e2e/
+│   ├── cli/               # CLI end-to-end
+│   ├── api/               # API end-to-end
+│   └── scenarios/         # User scenarios
+├── performance/
+│   ├── benchmarks/        # Criterion benchmarks
+│   ├── regression/        # Performance regression
+│   └── profiles/          # Profiling data
+├── fuzz/
+│   ├── corpus/            # Fuzz corpus
+│   └── targets/           # Fuzz targets
+├── property/
+│   ├── generators/        # Property generators
+│   └── properties/        # Property tests
+└── contract/
+    ├── pacts/             # Contract definitions
+    └── providers/         # Provider verification
+----
+
+=== 4.2 Security Hardening
+
+.Security Measures
+[cols="1,2,1"]
+|===
+|Measure |Implementation |Verification
+
+|Supply Chain
+|Guix reproducible builds, SLSA Level 3
+|cosign, in-toto
+
+|Memory Safety
+|Rust WASM core, ReScript type safety
+|MIRI, ASan
+
+|Input Validation
+|Strict parsing, size limits
+|Fuzz testing
+
+|Path Traversal
+|Canonical path resolution
+|Security test suite
+
+|Prototype Pollution
+|Object.create(null), frozen objects
+|Static analysis
+
+|Timing Attacks
+|Constant-time comparison
+|Timing analysis
+
+|Dependency Audit
+|Dependabot, Snyk, OSV
+|CI pipeline
+|===
+
+== Phase 5: CI/CD & Infrastructure (Weeks 15-18)
+
+=== 5.1 CI/CD Pipeline
+
+.Pipeline Architecture
+[plantuml, cicd-pipeline, svg]
+....
+@startuml
+|Build|
+start
+:Checkout;
+:Guix Environment;
+:ReScript Compile;
+:WASM Build;
+:Bundle;
+
+|Test|
+:Unit Tests;
+fork
+  :ReScript Tests;
+fork again
+  :WASM Tests;
+fork again
+  :Deno Tests;
+end fork
+:Integration Tests;
+:E2E Tests;
+:Security Scan;
+
+|Release|
+:Version Bump;
+:Changelog Generate;
+:Package Build;
+fork
+  :npm Publish;
+fork again
+  :Deno.land Publish;
+fork again
+  :Guix Channel Update;
+fork again
+  :Container Push;
+end fork
+:GitHub Release;
+stop
+@enduml
+....
+
+.Workflow Files
+[source]
+----
+.github/workflows/
+├── ci.yml              # Main CI pipeline
+├── release.yml         # Release automation
+├── security.yml        # Security scanning
+├── benchmarks.yml      # Performance tracking
+├── docs.yml            # Documentation build
+├── container.yml       # Container builds
+├── guix.yml            # Guix channel update
+└── nightly.yml         # Nightly builds
+----
+
+=== 5.2 Documentation Site
+
+.Site Architecture
+[source]
+----
+docs/
+├── antora.yml          # Antora configuration
+├── modules/
+│   ├── ROOT/
+│   │   ├── pages/
+│   │   │   ├── index.adoc
+│   │   │   ├── quickstart.adoc
+│   │   │   └── installation.adoc
+│   │   └── nav.adoc
+│   ├── guide/
+│   │   ├── pages/
+│   │   │   ├── configuration.adoc
+│   │   │   ├── pluralization.adoc
+│   │   │   ├── messageformat.adoc
+│   │   │   └── frameworks.adoc
+│   │   └── nav.adoc
+│   ├── reference/
+│   │   ├── pages/
+│   │   │   ├── api.adoc
+│   │   │   ├── cli.adoc
+│   │   │   └── config.adoc
+│   │   └── nav.adoc
+│   └── contributing/
+│       ├── pages/
+│       │   ├── development.adoc
+│       │   ├── architecture.adoc
+│       │   └── testing.adoc
+│       └── nav.adoc
+└── supplemental-ui/
+    └── partials/
+----
+
+.Wiki Structure
+[source]
+----
+wiki/
+├── Home.md
+├── FAQ.md
+├── Troubleshooting.md
+├── Migration-Guide.md
+├── Changelog.md
+├── Comparison.md
+├── Benchmarks.md
+├── Security.md
+├── Releases/
+│   ├── v1.0.0.md
+│   └── ...
+└── Examples/
+    ├── Express.md
+    ├── Deno-Oak.md
+    └── ...
+----
+
+== Phase 6: Ecosystem & Community (Weeks 19-24)
+
+=== 6.1 Package Distribution
+
+.Distribution Channels
+[cols="1,2,2"]
+|===
+|Channel |Package |Registry
+
+|Guix
+|`guix install i18n`
+|guix.gnu.org
+
+|Nix
+|`nix profile install`
+|nixpkgs, flake registry
+
+|Deno
+|`deno add @i18n/core`
+|deno.land/x, JSR
+
+|npm (compat)
+|`npm install i18n`
+|npmjs.com
+
+|Container
+|`nerdctl pull`
+|ghcr.io, cgr.dev
+
+|Homebrew
+|`brew install i18n`
+|homebrew-tap
+|===
+
+=== 6.2 Community Resources
+
+.Resources
+* Discord server for real-time support
+* GitHub Discussions for Q&A
+* Monthly community calls
+* Contribution guide with mentorship
+* Localization bounty program
+
+== Appendices
+
+=== A. Migration Guide
+
+.From npm to Deno
+[source,typescript]
+----
+// Before (npm)
+const i18n = require('i18n');
+
+// After (Deno)
+import { I18n } from "https://deno.land/x/i18n/mod.ts";
+----
+
+.From JavaScript to ReScript
+[source,rescript]
+----
+// ReScript equivalent
+let i18n = I18n.make({
+  locales: ["en", "de", "fr"],
+  defaultLocale: "en",
+})
+
+let translated = i18n->I18n.translate("hello")
+----
+
+=== B. Glossary
+
+ADR:: Architecture Decision Record
+CLDR:: Common Locale Data Repository
+ICU:: International Components for Unicode
+SBOM:: Software Bill of Materials
+SLSA:: Supply-chain Levels for Software Artifacts
+WASM:: WebAssembly
+
+=== C. Version History
+
+[cols="1,1,3"]
+|===
+|Version |Date |Milestone
+
+|2.0.0-alpha
+|Q1 2025
+|ReScript core, WASM modules
+
+|2.0.0-beta
+|Q2 2025
+|Guix channels, Nickel config
+
+|2.0.0-rc
+|Q3 2025
+|CLI complete, docs site live
+
+|2.0.0
+|Q4 2025
+|Production release
+|===
+
+== License
+
+This roadmap and the i18n-node-enhanced project are released under the MIT License.
+
+---
+
+_Document generated: {docdate}_
+_Last updated: {revdate}_

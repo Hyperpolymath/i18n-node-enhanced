@@ -1,0 +1,280 @@
+# nerdctl-compose.yaml - Container composition for i18n-node-enhanced
+#
+# nerdctl is a Docker-compatible CLI for containerd, providing
+# rootless containers, lazy pulling, and encrypted images.
+#
+# Usage:
+#   nerdctl compose -f container/nerdctl-compose.yaml up
+#   nerdctl compose -f container/nerdctl-compose.yaml --profile dev up
+#   nerdctl compose -f container/nerdctl-compose.yaml --profile test up
+
+name: i18n
+
+services:
+  # ============================================================================
+  # Production Services
+  # ============================================================================
+
+  # Main i18n service (Node.js runtime)
+  i18n:
+    build:
+      context: ..
+      dockerfile: container/Containerfile
+      target: node-runtime
+    image: ghcr.io/mashpie/i18n-node-enhanced:latest
+    container_name: i18n-node
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - I18N_DEFAULT_LOCALE=en
+      - I18N_DIRECTORY=/app/locales
+    volumes:
+      - i18n-locales:/app/locales:ro
+      - i18n-data:/app/data
+    healthcheck:
+      test: ["CMD", "node", "-e", "process.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:size=64M,mode=1777
+    labels:
+      - "dev.chainguard.image=true"
+      - "com.example.service=i18n"
+
+  # Deno runtime variant
+  i18n-deno:
+    build:
+      context: ..
+      dockerfile: container/Containerfile
+      target: deno-runtime
+    image: ghcr.io/mashpie/i18n-node-enhanced:deno
+    container_name: i18n-deno
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      - DENO_ENV=production
+      - I18N_DEFAULT_LOCALE=en
+    volumes:
+      - i18n-locales:/app/locales:ro
+    healthcheck:
+      test: ["CMD", "deno", "eval", "Deno.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    profiles:
+      - deno
+      - all
+
+  # ============================================================================
+  # Development Services
+  # ============================================================================
+
+  # Development environment with full toolchain
+  dev:
+    build:
+      context: ..
+      dockerfile: container/Containerfile
+      target: dev
+    image: ghcr.io/mashpie/i18n-node-enhanced:dev
+    container_name: i18n-dev
+    stdin_open: true
+    tty: true
+    volumes:
+      - ..:/app:cached
+      - dev-node-modules:/app/node_modules
+      - dev-cargo:/root/.cargo
+      - dev-deno:/root/.deno
+    environment:
+      - NODE_ENV=development
+      - RUST_LOG=debug
+      - DENO_DIR=/root/.deno
+    ports:
+      - "3000:3000"
+      - "9229:9229"  # Node.js debugger
+    command: ["/bin/bash", "-c", "npm install && exec /bin/bash"]
+    profiles:
+      - dev
+
+  # Test runner service
+  test:
+    build:
+      context: ..
+      dockerfile: container/Containerfile
+      target: builder
+    image: ghcr.io/mashpie/i18n-node-enhanced:test
+    container_name: i18n-test
+    volumes:
+      - ..:/app:cached
+      - test-coverage:/app/coverage
+    environment:
+      - NODE_ENV=test
+      - CI=true
+    command: ["npm", "test"]
+    profiles:
+      - test
+
+  # Benchmark runner
+  benchmark:
+    build:
+      context: ..
+      dockerfile: container/Containerfile
+      target: builder
+    container_name: i18n-benchmark
+    volumes:
+      - ..:/app:cached
+      - benchmark-results:/app/benchmark-results
+    environment:
+      - NODE_ENV=production
+    command: ["npm", "run", "benchmark"]
+    profiles:
+      - benchmark
+
+  # ============================================================================
+  # Infrastructure Services
+  # ============================================================================
+
+  # Documentation server
+  docs:
+    image: cgr.dev/chainguard/nginx:latest
+    container_name: i18n-docs
+    ports:
+      - "8080:80"
+    volumes:
+      - ../docs/_site:/usr/share/nginx/html:ro
+    profiles:
+      - docs
+      - all
+
+  # Locale file server (for remote locale loading)
+  locale-server:
+    image: cgr.dev/chainguard/nginx:latest
+    container_name: i18n-locale-server
+    ports:
+      - "8081:80"
+    volumes:
+      - i18n-locales:/usr/share/nginx/html:ro
+    profiles:
+      - server
+      - all
+
+  # Redis cache (optional, for distributed caching)
+  cache:
+    image: cgr.dev/chainguard/redis:latest
+    container_name: i18n-cache
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: ["redis-server", "--appendonly", "yes"]
+    profiles:
+      - cache
+      - distributed
+
+  # ============================================================================
+  # Monitoring Services
+  # ============================================================================
+
+  # Prometheus metrics (optional)
+  prometheus:
+    image: cgr.dev/chainguard/prometheus:latest
+    container_name: i18n-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    profiles:
+      - monitoring
+
+  # Grafana dashboards (optional)
+  grafana:
+    image: cgr.dev/chainguard/grafana:latest
+    container_name: i18n-grafana
+    ports:
+      - "3001:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    profiles:
+      - monitoring
+
+# ============================================================================
+# Volumes
+# ============================================================================
+
+volumes:
+  # Production volumes
+  i18n-locales:
+    driver: local
+  i18n-data:
+    driver: local
+
+  # Development volumes
+  dev-node-modules:
+    driver: local
+  dev-cargo:
+    driver: local
+  dev-deno:
+    driver: local
+
+  # Test volumes
+  test-coverage:
+    driver: local
+  benchmark-results:
+    driver: local
+
+  # Infrastructure volumes
+  redis-data:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+
+# ============================================================================
+# Networks
+# ============================================================================
+
+networks:
+  default:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
+  internal:
+    driver: bridge
+    internal: true
+
+# ============================================================================
+# Configuration Extensions
+# ============================================================================
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+x-healthcheck: &default-healthcheck
+  interval: 30s
+  timeout: 10s
+  retries: 3
+  start_period: 10s

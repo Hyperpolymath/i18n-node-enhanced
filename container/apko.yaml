@@ -1,0 +1,253 @@
+# apko.yaml - Chainguard apko configuration for i18n-node-enhanced
+#
+# apko enables declarative, reproducible container image builds using
+# Wolfi packages. This provides SBOM generation, signature support,
+# and minimal attack surface.
+#
+# Build with:
+#   apko build apko.yaml i18n:latest i18n.tar
+#   nerdctl load < i18n.tar
+#
+# Sign with:
+#   cosign sign --key cosign.key i18n:latest
+
+contents:
+  keyring:
+    - https://packages.wolfi.dev/os/wolfi-signing.rsa.pub
+  repositories:
+    - https://packages.wolfi.dev/os
+  packages:
+    # Core runtime
+    - wolfi-baselayout
+    - ca-certificates-bundle
+    - tzdata
+
+    # Node.js runtime
+    - nodejs-20
+    - nodejs-20-npm
+
+    # Security packages
+    - busybox
+    - libcrypto3
+    - libssl3
+
+accounts:
+  groups:
+    - groupname: i18n
+      gid: 65532
+  users:
+    - username: i18n
+      uid: 65532
+      gid: 65532
+  run-as: 65532
+
+work-dir: /app
+
+entrypoint:
+  command: /usr/bin/node
+
+cmd: /app/index.js
+
+environment:
+  NODE_ENV: production
+  I18N_DIRECTORY: /app/locales
+  I18N_DEFAULT_LOCALE: en
+  PATH: /usr/bin:/bin
+
+paths:
+  - path: /app
+    type: directory
+    uid: 65532
+    gid: 65532
+    permissions: 0o755
+  - path: /app/locales
+    type: directory
+    uid: 65532
+    gid: 65532
+    permissions: 0o755
+  - path: /app/data
+    type: directory
+    uid: 65532
+    gid: 65532
+    permissions: 0o755
+
+annotations:
+  org.opencontainers.image.title: i18n-node-enhanced
+  org.opencontainers.image.description: Lightweight translation module with dynamic JSON storage
+  org.opencontainers.image.url: https://github.com/mashpie/i18n-node
+  org.opencontainers.image.source: https://github.com/mashpie/i18n-node
+  org.opencontainers.image.vendor: i18n-node-enhanced
+  org.opencontainers.image.licenses: MIT
+  org.opencontainers.image.authors: mashpie and contributors
+  dev.chainguard.package.main: nodejs-20
+
+archs:
+  - amd64
+  - arm64
+
+---
+# Variant: CLI-only image
+contents:
+  keyring:
+    - https://packages.wolfi.dev/os/wolfi-signing.rsa.pub
+  repositories:
+    - https://packages.wolfi.dev/os
+  packages:
+    - wolfi-baselayout
+    - ca-certificates-bundle
+    - nodejs-20
+    - busybox
+
+accounts:
+  groups:
+    - groupname: i18n
+      gid: 65532
+  users:
+    - username: i18n
+      uid: 65532
+      gid: 65532
+  run-as: 65532
+
+work-dir: /app
+
+entrypoint:
+  command: /usr/bin/node
+
+cmd: /app/tools/cli.js
+
+environment:
+  NODE_ENV: production
+  PATH: /usr/bin:/bin
+
+paths:
+  - path: /app
+    type: directory
+    uid: 65532
+    gid: 65532
+    permissions: 0o755
+
+annotations:
+  org.opencontainers.image.title: i18n-cli
+  org.opencontainers.image.description: CLI tools for i18n-node-enhanced
+  dev.chainguard.package.variant: cli
+
+archs:
+  - amd64
+  - arm64
+
+---
+# Variant: Deno runtime
+contents:
+  keyring:
+    - https://packages.wolfi.dev/os/wolfi-signing.rsa.pub
+  repositories:
+    - https://packages.wolfi.dev/os
+  packages:
+    - wolfi-baselayout
+    - ca-certificates-bundle
+    - deno
+    - busybox
+
+accounts:
+  groups:
+    - groupname: i18n
+      gid: 65532
+  users:
+    - username: i18n
+      uid: 65532
+      gid: 65532
+  run-as: 65532
+
+work-dir: /app
+
+entrypoint:
+  command: /usr/bin/deno
+
+cmd: run --allow-read --allow-net --allow-env /app/deno/mod.ts
+
+environment:
+  DENO_DIR: /app/.deno
+  PATH: /usr/bin:/bin
+
+paths:
+  - path: /app
+    type: directory
+    uid: 65532
+    gid: 65532
+    permissions: 0o755
+  - path: /app/.deno
+    type: directory
+    uid: 65532
+    gid: 65532
+    permissions: 0o755
+
+annotations:
+  org.opencontainers.image.title: i18n-deno
+  org.opencontainers.image.description: Deno runtime for i18n-node-enhanced
+  dev.chainguard.package.variant: deno
+
+archs:
+  - amd64
+  - arm64
+
+---
+# Variant: Development image
+contents:
+  keyring:
+    - https://packages.wolfi.dev/os/wolfi-signing.rsa.pub
+  repositories:
+    - https://packages.wolfi.dev/os
+  packages:
+    - wolfi-baselayout
+    - ca-certificates-bundle
+    - tzdata
+    - nodejs-20
+    - nodejs-20-npm
+    - deno
+    - rust
+    - cargo
+    - git
+    - bash
+    - curl
+    - wget
+    - jq
+    - ripgrep
+    - fd
+    - vim
+
+accounts:
+  groups:
+    - groupname: i18n
+      gid: 1000
+  users:
+    - username: dev
+      uid: 1000
+      gid: 1000
+  run-as: 1000
+
+work-dir: /workspace
+
+entrypoint:
+  command: /bin/bash
+
+environment:
+  NODE_ENV: development
+  SHELL: /bin/bash
+  TERM: xterm-256color
+  PATH: /usr/bin:/bin:/usr/local/bin
+
+paths:
+  - path: /workspace
+    type: directory
+    uid: 1000
+    gid: 1000
+    permissions: 0o755
+
+annotations:
+  org.opencontainers.image.title: i18n-dev
+  org.opencontainers.image.description: Development environment for i18n-node-enhanced
+  dev.chainguard.package.variant: dev
+
+archs:
+  - amd64
+  - arm64

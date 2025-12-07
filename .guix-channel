@@ -1,0 +1,30 @@
+;; .guix-channel --- GNU Guix channel metadata
+;;
+;; Copyright (C) 2024-2025 i18n-node-enhanced contributors
+;; SPDX-License-Identifier: MIT
+;;
+;; This file defines the i18n-node-enhanced Guix channel, enabling users
+;; to install and update the package through Guix's channel mechanism.
+
+(channel
+ (version 0)
+ (url "https://github.com/mashpie/i18n-node")
+ (branch "main")
+ (introduction
+  (channel-introduction
+   (version 0)
+   (commit "0000000000000000000000000000000000000000")
+   (signer "XXXX XXXX XXXX XXXX XXXX  XXXX XXXX XXXX XXXX XXXX")))
+ (dependencies
+  (channel
+   (name guix)
+   (url "https://git.savannah.gnu.org/git/guix.git")
+   (branch "master"))))
+
+;; To use this channel, add to ~/.config/guix/channels.scm:
+;;
+;; (cons* (channel
+;;         (name 'i18n)
+;;         (url "https://github.com/mashpie/i18n-node")
+;;         (branch "main"))
+;;        %default-channels)
