@@ -21,8 +21,6 @@ i18n.configure({
 })
 
 // simple server
-// Security: MAX_DELAY_MS limits user-controlled delay to prevent resource exhaustion (CWE-400)
-var MAX_DELAY_MS = 5000
 app = http.createServer(function (req, res) {
   // Security: delay is bounded to [0, MAX_DELAY_MS] preventing resource exhaustion
   var boundedDelay = app.getDelay(req, res) // Returns value clamped to [0, 5000]ms
@@ -38,10 +36,19 @@ app = http.createServer(function (req, res) {
 })
 
 // simple param parsing
+// Security: Explicit bounds check to prevent resource exhaustion (CWE-400)
+var MAX_DELAY_MS = 5000
 app.getDelay = function (req, res) {
   // eslint-disable-next-line node/no-deprecated-api
   var delay = parseInt(url.parse(req.url, true).query.delay, 10) || 0
-  return Math.min(Math.max(0, delay), MAX_DELAY_MS)
+  // Explicit bounds check - reject out-of-range values
+  if (delay > MAX_DELAY_MS) {
+    return MAX_DELAY_MS
+  }
+  if (delay < 0) {
+    return 0
+  }
+  return delay
 }
 
 // startup

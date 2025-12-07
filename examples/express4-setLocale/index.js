@@ -75,12 +75,19 @@ var getBody = function (req, res) {
   return body
 }
 
-// Security: limit max delay to prevent resource exhaustion attacks (CWE-400)
+// Security: Explicit bounds check to prevent resource exhaustion (CWE-400)
 var MAX_DELAY_MS = 5000
 app.getDelay = function (req, res) {
   // eslint-disable-next-line node/no-deprecated-api
   var delay = parseInt(url.parse(req.url, true).query.delay, 10) || 0
-  return Math.min(Math.max(0, delay), MAX_DELAY_MS)
+  // Explicit bounds check - reject out-of-range values
+  if (delay > MAX_DELAY_MS) {
+    return MAX_DELAY_MS
+  }
+  if (delay < 0) {
+    return 0
+  }
+  return delay
 }
 
 var render = function (req, res) {
