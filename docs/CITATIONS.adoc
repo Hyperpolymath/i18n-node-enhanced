@@ -1,0 +1,36 @@
+= polyglot-i18n - Citation Guide
+:toc:
+
+== BibTeX
+
+[source,bibtex]
+----
+@software{polyglot-i18n_2025,
+  author = {Polymath, Hyper},
+  title = {polyglot-i18n},
+  year = {2025},
+  url = {https://github.com/hyperpolymath/polyglot-i18n},
+  license = {AGPL-3.0-or-later}
+}
+----
+
+== Harvard Style
+
+Polymath, H. (2025) _polyglot-i18n_ [Computer software]. Available at: https://github.com/hyperpolymath/polyglot-i18n
+
+== OSCOLA
+
+Hyper Polymath, 'polyglot-i18n' (2025) <https://github.com/hyperpolymath/polyglot-i18n>
+
+== MLA
+
+Polymath, Hyper. "polyglot-i18n." 2025, github.com/hyperpolymath/polyglot-i18n.
+
+== APA 7
+
+Polymath, H. (2025). _polyglot-i18n_ [Computer software]. GitHub. https://github.com/hyperpolymath/polyglot-i18n
+
+== See Also
+
+* link:../CITATION.cff[CITATION.cff]
+* link:../codemeta.json[codemeta.json]
