@@ -67,7 +67,7 @@ class DynamicsI18nAdapter {
     const lcid = this.mapLocaleToLCID(locale);
 
     let xml = `<?xml version="1.0" encoding="utf-8"?>\n`;
-    xml += `<AxLabelFile xmlns:i="http://www.w3.org/2001/XMLSchema-instance">\n`;
+    xml += `<AxLabelFile xmlns:i="https://www.w3.org/2001/XMLSchema-instance">\n`;
     xml += `  <LabelFileId>${this.escapeXML(labelFileId)}</LabelFileId>\n`;
     xml += `  <LabelContentVersion>1.0.0</LabelContentVersion>\n`;
     xml += `  <LanguageId>${lcid}</LanguageId>\n`;

@@ -257,7 +257,7 @@ const start = async () => {
 
     await fastify.listen({ port: PORT, host: HOST });
 
-    console.log(`Fastify server running on http://${HOST}:${PORT}`);
+    console.log(`Fastify server running on https://${HOST}:${PORT}`);
     console.log(`Available locales: ${i18n.getLocales().join(', ')}`);
   } catch (err) {
     fastify.log.error(err);

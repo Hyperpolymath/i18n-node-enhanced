@@ -387,8 +387,8 @@ nix build
 
 - **Repository:** https://github.com/hyperpolymath/polyglot-i18n
 - **Original Project:** https://github.com/mashpie/i18n-node
-- **MessageFormat Docs:** http://messageformat.github.io/
-- **CLDR Plural Rules:** http://cldr.unicode.org/index/cldr-spec/plural-rules
+- **MessageFormat Docs:** https://messageformat.github.io/
+- **CLDR Plural Rules:** https://cldr.unicode.org/index/cldr-spec/plural-rules
 - **ReScript Docs:** https://rescript-lang.org/docs/manual/latest/introduction
 - **Nickel Docs:** https://nickel-lang.org/
 - **GNU Guix:** https://guix.gnu.org/

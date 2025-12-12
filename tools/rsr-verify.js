@@ -128,7 +128,7 @@ const checks = {
           const coreFiles = ['i18n.js', 'index.js'];
           // Security: properly validate that URLs are only from allowed domains
           // The previous check using .includes('example.com') was vulnerable to bypasses
-          // like http://example.com.evil.com/
+          // like https://example.com.evil.com/
           const urlPattern = /https?:\/\/[^\s"')]+/g;
           const isAllowedUrl = (urlString) => {
             try {
