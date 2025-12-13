@@ -1,9 +1,13 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
 name: Performance Benchmarks
 
 on:
   pull_request:
     branches: [ main, develop ]
   workflow_dispatch:
+
+
+permissions: read-all
 
 jobs:
   benchmark:
@@ -13,11 +17,11 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d # v4.2.25 # v4.3.1
 
       - name: Checkout base branch
         if: github.event_name == 'pull_request'
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d # v4.2.25 # v4.3.1
         with:
           ref: ${{ github.base_ref }}
           path: base

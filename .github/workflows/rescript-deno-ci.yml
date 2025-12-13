@@ -1,12 +1,16 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
 name: ReScript/Deno CI
 on: [push, pull_request]
+
+
+permissions: read-all
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: denoland/setup-deno@v1
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: denoland/setup-deno@909cc5acb0135c37a79510dd77767e217930de55
         with:
           deno-version: v1.x
       
@@ -32,8 +36,8 @@ jobs:
   security:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: denoland/setup-deno@v1
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: denoland/setup-deno@909cc5acb0135c37a79510dd77767e217930de55
       - name: Check permissions
         run: |
           # Audit for dangerous permissions
