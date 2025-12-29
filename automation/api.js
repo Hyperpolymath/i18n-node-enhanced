@@ -8,6 +8,10 @@ const express = require('express');
 const { I18n } = require('../index');
 const { I18nAuditSystem } = require('../audit/forensics');
 
+// Security: Prevent prototype pollution via user-controlled keys
+const DANGEROUS_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+const isSafeKey = (key) => typeof key === 'string' && !DANGEROUS_KEYS.has(key);
+
 class I18nAutomationAPI {
   constructor(config = {}) {
     this.app = express();
@@ -128,11 +132,15 @@ class I18nAutomationAPI {
       try {
         if (locale) this.i18n.setLocale(locale);
 
-        const translations = {};
+        // Use Object.create(null) to prevent prototype pollution
+        const translations = Object.create(null);
         const startTime = Date.now();
 
         for (const key of keys) {
-          translations[key] = this.i18n.__(key);
+          // Security: Skip dangerous keys to prevent prototype pollution
+          if (isSafeKey(key)) {
+            translations[key] = this.i18n.__(key);
+          }
         }
 
         const duration = Date.now() - startTime;
