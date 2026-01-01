@@ -6,10 +6,10 @@ set -e
 
 echo "🔧 Building i18n WASM module..."
 
-# Install wasm-pack if not present
+# Install wasm-pack if not present (using cargo for security - no curl|sh)
 if ! command -v wasm-pack &> /dev/null; then
-    echo "Installing wasm-pack..."
-    curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+    echo "Installing wasm-pack via cargo..."
+    cargo install wasm-pack --locked
 fi
 
 # Build WASM module
