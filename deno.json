@@ -3,12 +3,15 @@
   "name": "@polyglot/i18n",
   "version": "2.0.0-beta",
   "exports": {
-    ".": "./src/lib/es6/src/mod.res.mjs",
-    "./i18n": "./src/lib/es6/src/core/I18n.res.mjs",
-    "./locale": "./src/lib/es6/src/core/Locale.res.mjs",
-    "./catalog": "./src/lib/es6/src/core/Catalog.res.mjs",
-    "./plural": "./src/lib/es6/src/core/Plural.res.mjs",
-    "./relative-time": "./src/lib/es6/src/core/RelativeTime.res.mjs"
+    ".": "./src/lib/es6/mod.res.mjs",
+    "./i18n": "./src/lib/es6/core/I18n.res.mjs",
+    "./locale": "./src/lib/es6/core/Locale.res.mjs",
+    "./catalog": "./src/lib/es6/core/Catalog.res.mjs",
+    "./plural": "./src/lib/es6/core/Plural.res.mjs",
+    "./relative-time": "./src/lib/es6/core/RelativeTime.res.mjs",
+    "./fuzzy-match": "./src/lib/es6/core/FuzzyMatch.res.mjs",
+    "./stemmer": "./src/lib/es6/core/Stemmer.res.mjs",
+    "./segmenter": "./src/lib/es6/core/Segmenter.res.mjs"
   },
   "publish": {
     "include": [
@@ -35,11 +38,11 @@
     "coverage": "deno coverage coverage --lcov --output=coverage.lcov",
     "lint": "deno lint",
     "fmt": "deno fmt",
-    "check": "deno check src/lib/es6/src/mod.res.mjs",
+    "check": "deno check src/lib/es6/mod.res.mjs",
     "bench": "deno bench --allow-read benchmarks/",
     "tui:build": "cd tui && gprbuild -P polyglot_tui.gpr -XMODE=release",
     "tui:spark": "cd tui && gnatprove -P polyglot_tui.gpr --level=2",
-    "doc": "deno doc --html --name='polyglot-i18n' src/lib/es6/src/mod.res.mjs",
+    "doc": "deno doc --html --name='polyglot-i18n' src/lib/es6/mod.res.mjs",
     "all": "deno task build && deno task wasm:pack && deno task tui:build"
   },
   "imports": {

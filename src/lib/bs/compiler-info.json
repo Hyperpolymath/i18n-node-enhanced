@@ -1,0 +1,8 @@
+{
+  "version": "12.0.2",
+  "bsc_path": "/var/home/hyper/repos/polyglot-i18n/src/node_modules/@rescript/linux-x64/bin/bsc.exe",
+  "bsc_hash": "f72d07fde92748be12785e1cdc5b82272821977e8f05ea78eeacf1f53837011d",
+  "rescript_config_hash": "e38aee4ab0e7ce21477c4f308988fc92df04769ac6f3b196120254df56b48407",
+  "runtime_path": "/var/home/hyper/repos/polyglot-i18n/src/node_modules/@rescript/runtime",
+  "generated_at": "1767009881269"
+}

@@ -1,6 +1,7 @@
 {
   "name": "polyglot-i18n",
   "sources": [
+    { "dir": ".", "files": ["mod.res"] },
     { "dir": "core", "subdirs": true },
     { "dir": "runtime", "subdirs": true }
   ],
@@ -8,6 +9,6 @@
     { "module": "esmodule", "in-source": false }
   ],
   "suffix": ".res.mjs",
-  "bs-dependencies": [],
+  "dependencies": ["@rescript/core"],
   "warnings": { "number": "+a-4-9-20-40-41-42-50-61", "error": "+5+6+101+109" }
 }

@@ -1,0 +1,308 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+= polyglot-i18n Testing Report
+:author: Claude Code
+:date: 2025-12-29
+:toc: left
+:toclevels: 3
+:source-highlighter: rouge
+
+== Executive Summary
+
+This report documents the testing and build verification of the `polyglot-i18n` project, a ReScript-first, WASM-accelerated internationalization library.
+
+[cols="1,3"]
+|===
+| *Project* | polyglot-i18n
+| *Version* | 2.0.0-beta
+| *Test Date* | 2025-12-29
+| *Build Status* | *PASS* (with deprecation warnings)
+| *WASM Build* | *PASS*
+| *Deno Check* | *PASS*
+| *Test Suite* | Not available (tests directory missing)
+|===
+
+== Build Results
+
+=== ReScript Build
+
+[cols="1,2,1"]
+|===
+| Component | Status | Notes
+
+| Source Parsing | PASS | 66 source files parsed
+| Compilation | PASS | 66 modules compiled
+| mod.res | PASS | Main entry point compiled
+| Locale.res | PASS | BCP 47 locale handling
+| Catalog.res | PASS | Translation catalog management
+| Plural.res | PASS | CLDR plural rules
+| I18n.res | PASS | Core i18n functionality
+| RelativeTime.res | PASS | Relative time formatting
+| FuzzyMatch.res | PASS | Levenshtein distance matching
+| Stemmer.res | PASS | Language-aware stemming
+| Segmenter.res | PASS | Text segmentation
+| DocumentExtract.res | PASS | Document text extraction
+|===
+
+=== Issues Fixed During Testing
+
+The following ReScript v12 compatibility issues were identified and fixed:
+
+==== 1. Array Spread Pattern Not Supported
+
+*Files affected:* `Locale.res`, `Catalog.res`, `RelativeTime.res`
+
+*Original Code:*
+[source,rescript]
+----
+switch path {
+| [head, ...rest] => traverse(rest)
+| _ => None
+}
+----
+
+*Fixed Code:*
+[source,rescript]
+----
+let len = Array.length(path)
+if len == 0 {
+  None
+} else {
+  switch path->Array.get(0) {
+  | None => None
+  | Some(head) =>
+    let rest = path->Array.slice(~start=1, ~end=len)
+    traverse(rest)
+  }
+}
+----
+
+==== 2. Return Keyword Not Valid
+
+*File:* `RelativeTime.res`
+
+*Issue:* ReScript does not support early returns like JavaScript
+
+*Fix:* Restructured using pattern matching with `let specialCase = if ... { Some(...) } else { None }`
+
+==== 3. Built-in Type Conflict
+
+*Files:* `RelativeTime.res`, `RelativeTime.resi`
+
+*Issue:* `type unit` conflicts with ReScript built-in
+
+*Fix:* Renamed to `type timeUnit`
+
+==== 4. Array.make Labeled Arguments
+
+*File:* `FuzzyMatch.res`
+
+*Original:* `Array.make(n, value)`
+
+*Fixed:* `Array.make(~length=n, value)`
+
+==== 5. Array Indexing Returns Option
+
+*File:* `FuzzyMatch.res`
+
+*Issue:* `array[i]` returns `option` in ReScript v12
+
+*Fix:* Used `Array.getUnsafe` and `Array.setUnsafe` for performance-critical matrix operations
+
+==== 6. String.split with RegExp
+
+*Files:* `Segmenter.res`, `DocumentExtract.res`
+
+*Original:* `String.split(%re(...))`
+
+*Fixed:* `String.splitByRegExp(%re(...))->Array.filterMap(x => x)`
+
+==== 7. String.charCodeAt Returns Option
+
+*File:* `Segmenter.res`
+
+*Original:* `c->String.charCodeAt(0)->Float.toInt`
+
+*Fixed:*
+[source,rescript]
+----
+switch nc->String.charCodeAt(0) {
+| Some(code) => code >= 65 && code <= 90
+| None => false
+}
+----
+
+==== 8. String.replaceRegExp Callback
+
+*File:* `I18n.res`
+
+*Original:* `String.replaceRegExp(pattern, (match, _) => ...)`
+
+*Fixed:* `String.unsafeReplaceRegExpBy1(pattern, (~match, ~group1, ~offset as _, ~input as _) => ...)`
+
+==== 9. Operator Precedence
+
+*File:* `I18n.res`
+
+*Original:* `if !array->Array.some(...)`
+
+*Fixed:* `if !(array->Array.some(...))`
+
+==== 10. Forward Reference
+
+*File:* `Catalog.res`
+
+*Issue:* `metadata` type referenced before definition
+
+*Fix:* Moved type definition before usage
+
+=== Deprecation Warnings
+
+The build completed successfully but produced deprecation warnings for legacy APIs. These do not affect functionality but should be addressed in future updates:
+
+[cols="2,2,1"]
+|===
+| Deprecated API | Replacement | Occurrences
+
+| `Js.Date.t` | `Date.t` | 8
+| `Js.Date.now` | `Date.now` | 2
+| `Js.Date.getTime` | `Date.getTime` | 2
+| `Js.Json.t` | `JSON.t` | 6
+| `Js.Json.classify` | Removed in v13 | 3
+| `Js.Json.string` | `JSON.Encode.string` | 8
+| `Js.Json.object_` | `JSON.Encode.object` | 2
+| `Js.Dict.t` | `dict` | 2
+| `Js.Dict.get` | `Dict.get` | 2
+| `Js.Dict.set` | `Dict.set` | 7
+| `Js.Dict.entries` | `Dict.toArray` | 2
+| `Js.Dict.empty` | `Dict.make` | 2
+| `Js.Exn.raiseError` | `JsError.throwWithMessage` | 1
+| `Exn.Error` | `JsExn` | 3
+| `Exn.message` | `JsExn.message` | 3
+| `Array.sliceToEnd` | `Array.slice` | 2
+| `String.unsafeReplaceRegExpBy1` | `replaceRegExpBy1Unsafe` | 2
+|===
+
+=== WASM Build
+
+[cols="1,2,1"]
+|===
+| Step | Status | Duration
+
+| Cargo Build | PASS | 1m 34s
+| wasm-pack | PASS | 14.79s
+| wasm-opt | PASS | Included in wasm-pack
+|===
+
+*Output Location:* `wasm/pkg/`
+
+*Warnings:*
+
+1. `unexpected cfg condition value: console_error_panic_hook` - Minor configuration warning
+2. `field w is never read` in `PluralOperands` - Dead code warning
+
+=== Deno Integration
+
+[cols="1,2"]
+|===
+| Check | Status
+
+| `deno check` | PASS
+| Module resolution | PASS
+| Export paths | Fixed (was pointing to wrong directory)
+|===
+
+*Fixed Export Paths in deno.json:*
+
+[source,json]
+----
+{
+  "exports": {
+    ".": "./src/lib/es6/mod.res.mjs",
+    "./i18n": "./src/lib/es6/core/I18n.res.mjs",
+    "./locale": "./src/lib/es6/core/Locale.res.mjs",
+    "./catalog": "./src/lib/es6/core/Catalog.res.mjs",
+    "./plural": "./src/lib/es6/core/Plural.res.mjs",
+    "./relative-time": "./src/lib/es6/core/RelativeTime.res.mjs",
+    "./fuzzy-match": "./src/lib/es6/core/FuzzyMatch.res.mjs",
+    "./stemmer": "./src/lib/es6/core/Stemmer.res.mjs",
+    "./segmenter": "./src/lib/es6/core/Segmenter.res.mjs"
+  }
+}
+----
+
+== Test Suite Status
+
+The Deno test suite could not be run because no test files exist in the expected location (`tests/**/*_test.mjs`).
+
+*Finding:* Legacy JavaScript tests exist in `/test/*.js` using Mocha framework, but no Deno-compatible tests have been created.
+
+*Recommendation:* Create Deno test files in `tests/` directory with `*_test.mjs` naming convention.
+
+== Configuration Changes
+
+=== rescript.json
+
+Added root module to sources:
+
+[source,json]
+----
+{
+  "sources": [
+    { "dir": ".", "files": ["mod.res"] },
+    { "dir": "core", "subdirs": true },
+    { "dir": "runtime", "subdirs": true }
+  ]
+}
+----
+
+=== deno.json
+
+Fixed export paths and check command to use correct output directory (`src/lib/es6/` instead of `src/lib/es6/src/`).
+
+== Recommendations
+
+1. *Create Deno Tests:* Migrate or create tests in `tests/` directory with Deno-compatible format
+2. *Update Deprecated APIs:* Run `rescript-tools migrate-all` to update to modern APIs
+3. *Fix WASM Warnings:* Add `console_error_panic_hook` feature or remove conditional compilation
+4. *Documentation:* Update README.adoc with correct import paths
+
+== File Manifest
+
+=== Compiled Modules
+
+[source]
+----
+src/lib/es6/
+├── mod.res.mjs          # Main entry point
+└── core/
+    ├── Catalog.res.mjs      # Translation catalog
+    ├── DocumentExtract.res.mjs  # Document extraction
+    ├── FuzzyMatch.res.mjs   # Fuzzy string matching
+    ├── I18n.res.mjs         # Core i18n
+    ├── Locale.res.mjs       # Locale handling
+    ├── Plural.res.mjs       # Plural rules
+    ├── RelativeTime.res.mjs # Relative time
+    ├── Segmenter.res.mjs    # Text segmentation
+    └── Stemmer.res.mjs      # Word stemming
+----
+
+=== WASM Package
+
+[source]
+----
+wasm/pkg/
+├── i18n_wasm.js         # JavaScript bindings
+├── i18n_wasm.d.ts       # TypeScript definitions
+├── i18n_wasm_bg.wasm    # WASM binary
+└── package.json         # npm package config
+----
+
+== Conclusion
+
+The polyglot-i18n project builds successfully with both ReScript and WASM targets. The main issues encountered were ReScript v12 API changes which have been fixed. The project is functional but would benefit from:
+
+1. A Deno-compatible test suite
+2. Updating deprecated API calls
+3. Minor WASM configuration cleanup
+
+*Overall Assessment:* Build infrastructure is sound; ready for development use.

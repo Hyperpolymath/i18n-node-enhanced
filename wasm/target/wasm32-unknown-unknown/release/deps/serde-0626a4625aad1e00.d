@@ -1,0 +1,14 @@
+/var/home/hyper/repos/polyglot-i18n/wasm/target/wasm32-unknown-unknown/release/deps/serde-0626a4625aad1e00.d: /home/hyper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs /home/hyper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs /home/hyper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs /home/hyper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs /home/hyper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs /var/home/hyper/repos/polyglot-i18n/wasm/target/wasm32-unknown-unknown/release/build/serde-afbbcdb1e133c9ff/out/private.rs
+
+/var/home/hyper/repos/polyglot-i18n/wasm/target/wasm32-unknown-unknown/release/deps/libserde-0626a4625aad1e00.rlib: /home/hyper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs /home/hyper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs /home/hyper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs /home/hyper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs /home/hyper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs /var/home/hyper/repos/polyglot-i18n/wasm/target/wasm32-unknown-unknown/release/build/serde-afbbcdb1e133c9ff/out/private.rs
+
+/var/home/hyper/repos/polyglot-i18n/wasm/target/wasm32-unknown-unknown/release/deps/libserde-0626a4625aad1e00.rmeta: /home/hyper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs /home/hyper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs /home/hyper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs /home/hyper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs /home/hyper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs /var/home/hyper/repos/polyglot-i18n/wasm/target/wasm32-unknown-unknown/release/build/serde-afbbcdb1e133c9ff/out/private.rs
+
+/home/hyper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs:
+/home/hyper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs:
+/home/hyper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs:
+/home/hyper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs:
+/home/hyper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs:
+/var/home/hyper/repos/polyglot-i18n/wasm/target/wasm32-unknown-unknown/release/build/serde-afbbcdb1e133c9ff/out/private.rs:
+
+# env-dep:OUT_DIR=/var/home/hyper/repos/polyglot-i18n/wasm/target/wasm32-unknown-unknown/release/build/serde-afbbcdb1e133c9ff/out
