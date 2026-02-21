@@ -408,3 +408,8 @@ Based on https://github.com/mashpie/i18n-node[i18n-node] by Marcus Spiegel (MIT)
 * link:ROADMAP.adoc[Roadmap]
 * link:CHANGELOG.md[Changelog]
 * link:SECURITY.md[Security Policy]
+
+
+== Architecture
+
+See link:TOPOLOGY.md[TOPOLOGY.md] for a visual architecture map and completion dashboard.
