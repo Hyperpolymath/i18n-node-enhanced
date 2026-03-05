@@ -1,10 +1,9 @@
 {
   "name": "polyglot-i18n",
   "version": "2.0.0-beta",
-  "dependencies": {
-    "@rescript/core": "^1.6.1"
-  },
-  "devDependencies": {
+  "tasks": {},
+  "imports": {
+    "@rescript/core": "npm:@rescript/core@^1.6.1",
     "rescript": "^12.0.0"
   }
 }

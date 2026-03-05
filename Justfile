@@ -1087,3 +1087,8 @@ quickstart:
 verify-offline:
     @echo -e "{{CYAN}}Verifying offline-first capabilities...{{NC}}"
     @node -e "const {I18n} = require('./'); const i18n = new I18n({staticCatalog: {en: {test: 'works'}}, updateFiles: false}); if(i18n.__('test') === 'works') console.log('{{GREEN}}✓ Offline mode works{{NC}}')"
+
+# [AUTO-GENERATED] Multi-arch / RISC-V target
+build-riscv:
+	@echo "Building for RISC-V..."
+	cross build --target riscv64gc-unknown-linux-gnu
