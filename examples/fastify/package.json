@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "i18n": "file:../../",
-    "fastify": "^4.25.0",
+    "fastify": "^5.8.1",
     "@fastify/cookie": "^9.2.0"
   },
   "devDependencies": {
