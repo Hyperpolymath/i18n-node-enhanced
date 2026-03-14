@@ -11,7 +11,7 @@ Philosophy: **Palimpsest**. The Palimpsest-MPL (PMPL) text is provided in `licen
 
 
 :author: Jonathan D.A. Jewell
-:email: jonathan.jewell@gmail.com
+:email: j.d.a.jewell@open.ac.uk
 :toc: macro
 :toc-title: Contents
 :toclevels: 3

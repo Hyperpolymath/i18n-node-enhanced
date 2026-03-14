@@ -27,7 +27,7 @@
     let seg = Segmenter.fromString(\"en\")
     seg->Segmenter.segmentSentences(\"Hello. World!\")  // [\"Hello.\", \"World!\"]
 
-  SPDX-License-Identifier: AGPL-3.0-or-later
+  SPDX-License-Identifier: PMPL-1.0-or-later
 ")
 
 // Re-export all public modules
