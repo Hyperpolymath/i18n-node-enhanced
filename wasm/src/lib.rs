@@ -1,5 +1,6 @@
 // polyglot-i18n WASM Core - CLDR Plural Rules Engine
 // Optimized for size and speed, compliant with Unicode CLDR plural rules
+#![forbid(unsafe_code)]
 use wasm_bindgen::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
