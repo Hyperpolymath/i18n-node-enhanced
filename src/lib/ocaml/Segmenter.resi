@@ -1,5 +1,5 @@
 // Segmenter - Sentence and word boundary detection
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: PMPL-1.0-or-later
 
 // Segmenter for a specific locale
 type t

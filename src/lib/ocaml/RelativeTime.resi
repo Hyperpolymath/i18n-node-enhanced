@@ -1,5 +1,5 @@
 // RelativeTime - Human-readable relative time formatting
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: PMPL-1.0-or-later
 
 // Time units for relative time formatting
 type timeUnit =

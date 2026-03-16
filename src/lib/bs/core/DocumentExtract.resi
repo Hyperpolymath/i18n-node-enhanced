@@ -1,6 +1,6 @@
 // DocumentExtract - Extract translatable text from documents
 // Uses Pandoc for format conversion, Hunspell for spell checking
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: PMPL-1.0-or-later
 
 // Supported input formats
 type inputFormat =
