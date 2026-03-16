@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: PMPL-1.0-or-later
 @@ocaml.doc("
   I18n - Main API for polyglot-i18n
 

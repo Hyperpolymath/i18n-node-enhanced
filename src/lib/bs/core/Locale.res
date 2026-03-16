@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: PMPL-1.0-or-later
 @@ocaml.doc("
   Locale - Type-safe locale handling for polyglot-i18n
 
