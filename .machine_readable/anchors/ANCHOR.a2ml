@@ -1,0 +1,18 @@
+# ⚓ ANCHOR: polyglot-i18n
+# This is the canonical authority for the polyglot-i18n repository.
+
+id: "org.hyperpolymath.polyglot-i18n"
+version: "1.0.0"
+clade: "unknown"
+status: "active"
+
+# SSG Configuration (Unified boj-server build)
+ssg:
+  engine: "casket"
+  output_dir: "public"
+  boj_trigger: true
+  cartridge: "ssg-mcp"
+
+# Relationships
+parents:
+  - "org.hyperpolymath.boj-server"
