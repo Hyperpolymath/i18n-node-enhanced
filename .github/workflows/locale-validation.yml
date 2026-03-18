@@ -15,7 +15,8 @@ on:
       - 'tools/**'
 
 
-permissions: read-all
+permissions:
+  contents: read
 
 jobs:
   validate-locales:
