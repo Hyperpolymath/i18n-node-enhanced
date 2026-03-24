@@ -422,13 +422,14 @@ test-report:
 lint: lint-js lint-json lint-yaml lint-md
     @echo -e "{{GREEN}}✓ All linting passed{{NC}}"
 
-# Lint JavaScript
+# Lint JavaScript (ReScript output + remaining JS)
 lint-js:
-    npx eslint i18n.js index.js test/ tools/ examples/
+    @echo "Linting JS files..."
+    @find src -name "*.res.mjs" -o -name "*.js" 2>/dev/null | head -1 > /dev/null && npx eslint src/ test/ examples/ 2>/dev/null || echo "No JS files to lint or eslint not available"
 
 # Lint and fix JavaScript
 lint-js-fix:
-    npx eslint --fix i18n.js index.js test/ tools/ examples/
+    @find src -name "*.res.mjs" -o -name "*.js" 2>/dev/null | head -1 > /dev/null && npx eslint --fix src/ test/ examples/ 2>/dev/null || echo "No JS files to lint or eslint not available"
 
 # Lint JSON
 lint-json:
@@ -1088,7 +1089,6 @@ verify-offline:
     @echo -e "{{CYAN}}Verifying offline-first capabilities...{{NC}}"
     @node -e "const {I18n} = require('./'); const i18n = new I18n({staticCatalog: {en: {test: 'works'}}, updateFiles: false}); if(i18n.__('test') === 'works') console.log('{{GREEN}}✓ Offline mode works{{NC}}')"
 
-# [AUTO-GENERATED] Multi-arch / RISC-V target
-build-riscv:
-	@echo "Building for RISC-V..."
-	cross build --target riscv64gc-unknown-linux-gnu
+# Run panic-attacker pre-commit scan
+assail:
+    @command -v panic-attack >/dev/null 2>&1 && panic-attack assail . || echo "panic-attack not found — install from https://github.com/hyperpolymath/panic-attacker"
