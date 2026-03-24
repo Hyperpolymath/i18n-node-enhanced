@@ -1,15 +1,164 @@
+; SPDX-License-Identifier: MPL-2.0
+; (PMPL-1.0-or-later preferred; MPL-2.0 required for npm ecosystem compatibility)
+; 0-AI-MANIFEST.a2ml — Universal AI entry point for polyglot-i18n
+;
+; ALL AI agents (Claude, Gemini, OpenAI, etc.) MUST read this file FIRST.
+; This file defines canonical locations, critical invariants, and context tiers.
 
-# AI Assistant Instructions
+(ai-manifest
+  (version "2.0.0")
+  (repo "polyglot-i18n")
+  (display-name "polyglot-i18n")
+  (purpose "ReScript-first i18n library with WASM acceleration and NLP features")
+  (author "Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>")
+  (origin "Fork of i18n-node by Marcus Spiegel (MIT)")
+  (license "MPL-2.0")
 
-## Repository Focus
-- `polyglot-i18n` is treated as a Rhodium Standard Repository; obey the Rhodium policies, maintain `.bot_directives`, and keep `.machines_readable/6scm/` authoritative.
-- Prefer to keep generated files out of source control, and regenerate them with the documented commands before committing.
+  ; ── Context Tiers ──────────────────────────────────────────────────
+  ; Agents should load tiers incrementally based on task scope.
+  ; Tier 0: Always read. Tier 1: Read for any code task. Tier 2: On demand.
 
-## Workflow
-1. Inspect `.machines_readable/6scm/STATE.scm` for blockers and next actions.
-2. Respect any constraints listed inside `.machines_readable/6scm/AGENTIC.scm` when tooling changes are requested.
-3. After finishing edits, update STATE with your outcomes and commit with a concise, imperative message.
+  (context-tiers
+    (tier-0 "orientation"
+      (files
+        "0-AI-MANIFEST.a2ml"         ; This file — read first
+        ".machine_readable/MUST.contractile"   ; Hard invariants — never violate
+        ".machine_readable/TRUST.contractile"  ; Permission boundaries
+        ".machine_readable/INTENT.contractile" ; Purpose and anti-purpose
+        ".machine_readable/ADJUST.contractile" ; Accessibility + i18n invariants
+      )
+      (summary
+        "polyglot-i18n is a JavaScript/ReScript i18n library published on npm.
+         Fork of i18n-node. Provides __(), __n(), __mf() translation functions,
+         CLDR plural rules, locale detection, MessageFormat, and NLP features
+         (stemming, fuzzy match, segmentation). WASM acceleration optional.
+         Being migrated from JS to ReScript."))
 
-## Delivery Promises
-- Mention in summaries whether STATE, `contractiles/`, or `.bot_directives/` changed.
-- Keep this file in sync with the repository’s status; update it if the governance changes.
+    (tier-1 "development"
+      (files
+        "CLAUDE.md"                            ; Full project overview and patterns
+        ".claude/CLAUDE.md"                    ; Language policy, dev patterns
+        "Justfile"                             ; Task runner — 150+ recipes
+        "package.json"                         ; npm metadata and deps
+        "llm-warmup-dev.md"                    ; Developer-oriented LLM briefing
+        "QUICKSTART-USER.adoc"                 ; User setup instructions
+      )
+      (summary
+        "Node.js 18+ / Deno 1.40+. Mocha tests with NYC coverage. Main logic
+         in i18n.js (legacy) and src/core/*.res (ReScript migration). WASM in
+         wasm/ (Rust). Examples for Express, Fastify, Hono, Koa, NestJS.
+         Nickel config in config/i18n.ncl. Guix primary, Nix fallback."))
+
+    (tier-2 "deep-dive"
+      (files
+        ".machine_readable/6a2/STATE.a2ml"     ; Current progress and blockers
+        ".machine_readable/6a2/META.a2ml"      ; Architecture decisions
+        ".machine_readable/6a2/ECOSYSTEM.a2ml" ; Ecosystem position
+        ".machine_readable/6a2/AGENTIC.a2ml"   ; AI agent patterns
+        "ROADMAP.adoc"                         ; Planned features
+        "CHANGELOG.adoc"                       ; Version history
+        "TOPOLOGY.md"                          ; Infrastructure topology
+        "EXPLAINME.adoc"                       ; Evidence backing README claims
+      )
+      (summary
+        "State tracking, architecture decision records, ecosystem relationships,
+         and operational runbooks. Read when making strategic decisions,
+         investigating cross-cutting concerns, or planning releases.")))
+
+  ; ── Canonical File Locations ───────────────────────────────────────
+
+  (canonical-locations
+    (machine-readable ".machine_readable/"
+      (note "SCM files ONLY in .machine_readable/ — NEVER in repo root")
+      (subdirs "6a2/" "contractiles/" "anchors/" "bot_directives/"
+               "agent_instructions/" "integrations/" "policies/"))
+    (contractiles
+      ".machine_readable/MUST.contractile"
+      ".machine_readable/TRUST.contractile"
+      ".machine_readable/INTENT.contractile"
+      ".machine_readable/ADJUST.contractile"
+      "contractiles/must/"
+      "contractiles/dust/"
+      "contractiles/k9/")
+    (source-code
+      "i18n.js"                  ; Legacy JS implementation (runtime bridge)
+      "index.js"                 ; Module entry point
+      "src/core/"                ; ReScript modules (migration target)
+      "bindings/rescript/"       ; ReScript type bindings
+      "wasm/"                    ; Rust WASM acceleration
+      "adapters/")               ; Framework adapters
+    (locales
+      "locales/"                 ; Default translation JSON files
+      (note "No PII or proprietary translations in committed files"))
+    (examples
+      "examples/express4-cookie/"
+      "examples/fastify/"
+      "examples/hono/"
+      "examples/koa/"
+      "examples/nestjs/"
+      "examples/nextjs/")
+    (configuration
+      "config/i18n.ncl"          ; Nickel type-safe config
+      "package.json"             ; npm metadata
+      "deno.json")               ; Deno imports
+    (containers
+      "container/Containerfile"  ; Multi-stage build
+      "container/apko.yaml"      ; Declarative minimal image
+      "container/nerdctl-compose.yaml")
+    (packaging
+      "guix.scm"                ; GNU Guix (primary)
+      "manifest.scm"            ; Guix dev environment
+      "channels.scm"            ; Guix channel config
+      "flake.nix"))             ; Nix (fallback)
+
+  ; ── Critical Invariants ────────────────────────────────────────────
+
+  (critical-invariants
+    (invariant "api-compatibility"
+      "__(), __n(), __mf() must preserve i18n-node API signatures.
+       Locale detection order: query param > cookie > header > default.")
+    (invariant "cldr-compliance"
+      "Plural rules must conform to Unicode CLDR. No custom rule inventions.
+       All six categories (zero/one/two/few/many/other) must be supported.")
+    (invariant "wasm-optional"
+      "WASM module is acceleration only. JS fallback must always work.
+       WASM API must match JS API exactly — same inputs, same outputs.")
+    (invariant "rescript-migration"
+      "New features in ReScript, not JavaScript/TypeScript. Legacy i18n.js
+       kept as runtime bridge until migration complete.")
+    (invariant "language-policy"
+      "No TypeScript, Python, Go, npm-only deps. Use ReScript, Deno, Rust.
+       See .claude/CLAUDE.md for full policy.")
+    (invariant "license-dual"
+      "MPL-2.0 for npm ecosystem. Original i18n-node code remains MIT.
+       Do not relicense third-party code."))
+
+  ; ── Lifecycle Hooks ────────────────────────────────────────────────
+
+  (lifecycle
+    (on-enter
+      "1. Read this manifest and acknowledge canonical locations."
+      "2. Read MUST.contractile — these are hard constraints."
+      "3. Read TRUST.contractile — know your permission boundaries."
+      "4. Check .machine_readable/6a2/STATE.a2ml for current blockers.")
+    (on-exit
+      "1. Update STATE.a2ml with outcomes."
+      "2. Run 'just assail' (panic-attacker pre-commit scan)."
+      "3. Mention in summary if contractiles or STATE changed."))
+
+  ; ── Quick Reference ────────────────────────────────────────────────
+
+  (quick-reference
+    (install   "just install"               "Auto-detect npm/pnpm/deno")
+    (tests     "just test"                  "Mocha test suite")
+    (dev       "just dev"                   "Example Express server")
+    (lint      "just lint"                  "ESLint + Prettier")
+    (build     "just build-all"             "JS + WASM + ReScript")
+    (wasm      "just build-wasm"            "Rust -> WASM module")
+    (container "just container-build"       "Chainguard Wolfi image")
+    (diagnose  "just doctor"                "Environment health check")
+    (repair    "just heal"                  "Auto-fix common problems")
+    (tour      "just tour"                  "Guided codebase walkthrough")
+    (help      "just help-me"               "Interactive help menu")
+    (precommit "just assail"                "panic-attacker scan"))
+)

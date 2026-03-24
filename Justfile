@@ -1089,6 +1089,211 @@ verify-offline:
     @echo -e "{{CYAN}}Verifying offline-first capabilities...{{NC}}"
     @node -e "const {I18n} = require('./'); const i18n = new I18n({staticCatalog: {en: {test: 'works'}}, updateFiles: false}); if(i18n.__('test') === 'works') console.log('{{GREEN}}✓ Offline mode works{{NC}}')"
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# DIAGNOSTICS & ONBOARDING
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Diagnose environment problems — checks every tool this project needs
+doctor:
+    #!/usr/bin/env bash
+    set -uo pipefail
+    echo "=== polyglot-i18n doctor ==="
+    echo ""
+    ok=0; warn=0; fail=0
+    check() {
+        if command -v "$1" &>/dev/null; then
+            printf "  [OK]   %-18s %s\n" "$1" "$($1 --version 2>&1 | head -1)"
+            ((ok++))
+        elif [ "${2:-required}" = "optional" ]; then
+            printf "  [SKIP] %-18s not installed (optional)\n" "$1"
+            ((warn++))
+        else
+            printf "  [FAIL] %-18s not installed\n" "$1"
+            ((fail++))
+        fi
+    }
+    echo "-- Runtime --"
+    check node
+    check deno optional
+    echo ""
+    echo "-- Package management --"
+    check npm
+    check pnpm optional
+    echo ""
+    echo "-- Build / task --"
+    check just
+    check git
+    check nix optional
+    check guix optional
+    check nickel optional
+    echo ""
+    echo "-- WASM toolchain --"
+    check rustc optional
+    check cargo optional
+    check wasm-pack optional
+    echo ""
+    echo "-- Quality --"
+    check npx  # eslint, prettier via npx
+    echo ""
+    echo "-- Security --"
+    check panic-attack optional
+    echo ""
+    echo "-- Files --"
+    for f in package.json Justfile 0-AI-MANIFEST.a2ml LICENSE SECURITY.md i18n.js; do
+        if [ -f "$f" ]; then
+            printf "  [OK]   %s exists\n" "$f"
+            ((ok++))
+        else
+            printf "  [FAIL] %s missing\n" "$f"
+            ((fail++))
+        fi
+    done
+    echo ""
+    echo "-- Dependencies --"
+    if [ -d node_modules ]; then
+        printf "  [OK]   node_modules present\n"
+        ((ok++))
+    else
+        printf "  [WARN] node_modules missing — run 'just install'\n"
+        ((warn++))
+    fi
+    echo ""
+    echo "=== Results: $ok OK, $warn warnings, $fail failures ==="
+    if [ "$fail" -gt 0 ]; then
+        echo "Run 'just heal' to attempt automatic fixes."
+        exit 1
+    fi
+
+# Attempt automatic repair of common problems
+heal:
+    #!/usr/bin/env bash
+    set -uo pipefail
+    echo "=== polyglot-i18n heal ==="
+    echo ""
+    # Dependencies
+    if [ ! -d node_modules ]; then
+        echo "[heal] Installing dependencies..."
+        if command -v pnpm &>/dev/null; then
+            pnpm install --frozen-lockfile 2>/dev/null || pnpm install
+        elif command -v deno &>/dev/null; then
+            deno cache deno/mod.ts 2>/dev/null || true
+            npm ci 2>/dev/null || npm install
+        else
+            npm ci 2>/dev/null || npm install
+        fi
+    fi
+    # Stale test locale dirs
+    for d in testlocalesauto testlocalesautocustomextension testlocalesautoprefixed testlocalesautoprefixedext; do
+        if [ -d "$d" ]; then
+            echo "[heal] Removing stale test directory: $d"
+            rm -rf "$d"
+        fi
+    done
+    # ReScript build
+    if [ -d bindings/rescript ] && [ ! -d bindings/rescript/lib ]; then
+        echo "[heal] Building ReScript bindings..."
+        (cd bindings/rescript && npm install && npx rescript build) 2>/dev/null || true
+    fi
+    # Coverage artifacts
+    if [ -d .nyc_output ] && [ "$(find .nyc_output -mtime +7 -print -quit)" ]; then
+        echo "[heal] Removing stale coverage data..."
+        rm -rf .nyc_output coverage
+    fi
+    echo ""
+    echo "[heal] Done. Run 'just doctor' to verify."
+
+# Guided tour of the codebase — read this if you are new
+tour:
+    #!/usr/bin/env bash
+    set -uo pipefail
+    echo "=== polyglot-i18n Codebase Tour ==="
+    echo ""
+    echo "polyglot-i18n is an i18n library for JavaScript/ReScript apps."
+    echo "Fork of i18n-node by Marcus Spiegel, with ReScript types and WASM."
+    echo ""
+    echo "--- Module Map ---"
+    echo "  src/core/"
+    echo "    I18n.res           Main API (config, translate, locale mgmt)"
+    echo "    Catalog.res        Immutable translation catalogs"
+    echo "    Locale.res         BCP 47 parsing, fallback chains"
+    echo "    Plural.res         CLDR plural rules (9+ langs)"
+    echo "    FuzzyMatch.res     Levenshtein/Damerau-Levenshtein"
+    echo "    Stemmer.res        Porter stemmer (8 langs)"
+    echo "    Segmenter.res      Sentence/word boundary detection"
+    echo "    RelativeTime.res   'yesterday', '3 days ago'"
+    echo "    DocumentExtract.res  Pandoc, Tesseract integration"
+    echo ""
+    echo "  i18n.js              Legacy JS implementation (runtime bridge)"
+    echo "  wasm/                Rust WASM acceleration (optional)"
+    echo "  locales/             JSON translation files per language"
+    echo "  examples/            Express, Fastify, Hono, Koa, NestJS"
+    echo "  test/                Mocha test suite"
+    echo "  config/i18n.ncl      Nickel type-safe configuration"
+    echo ""
+    echo "--- Data Flow ---"
+    echo "  Configure(options)"
+    echo "    -> Load locale JSONs"
+    echo "    -> Build immutable Catalog"
+    echo "    -> Bind API to req/res (middleware) or global"
+    echo ""
+    echo "  Translate(key, args)"
+    echo "    -> Look up in current locale"
+    echo "    -> Fallback -> Default"
+    echo "    -> Interpolate (sprintf -> mustache -> MessageFormat)"
+    echo ""
+    echo "--- Quick Commands ---"
+    echo "  just install       Install dependencies"
+    echo "  just test          Run Mocha tests"
+    echo "  just dev           Start example Express server"
+    echo "  just build-wasm    Build Rust WASM module"
+    echo "  just doctor        Check environment health"
+    echo "  just heal          Auto-fix common problems"
+    echo "  just help-me       Interactive help menu"
+    echo ""
+    echo "Read QUICKSTART-USER.adoc for full setup instructions."
+
+# Interactive help menu — pick what you need
+help-me:
+    #!/usr/bin/env bash
+    set -uo pipefail
+    echo "=== polyglot-i18n Help ==="
+    echo ""
+    echo "  1) I want to INSTALL the library in my project"
+    echo "  2) I want to SET UP the project from source"
+    echo "  3) I want to RUN TESTS"
+    echo "  4) I want to BUILD WASM / ReScript"
+    echo "  5) I want to DIAGNOSE a problem"
+    echo "  6) I want to understand the CODEBASE"
+    echo "  7) I want to ADD A NEW LOCALE"
+    echo ""
+    read -rp "Pick a number (1-7): " choice
+    case "$choice" in
+        1) echo ""; echo "npm install polyglot-i18n"
+           echo ""
+           echo "const { I18n } = require('polyglot-i18n');"
+           echo "const i18n = new I18n({ locales: ['en','de'], directory: './locales' });"
+           echo "i18n.__('Hello');  // 'Hello' or translated" ;;
+        2) echo ""; echo "Run: just install   (auto-detects npm/pnpm/deno)"
+           echo "Then: just test     (verify everything works)"
+           echo "See: QUICKSTART-USER.adoc" ;;
+        3) echo ""; echo "Run: just test           (full Mocha suite)"
+           echo "      just test-coverage  (NYC coverage report)"
+           echo "      just test-watch     (watch mode)"
+           echo "      just test-locale en (specific locale)" ;;
+        4) echo ""; echo "Run: just build-wasm      (Rust -> WASM, needs wasm-pack)"
+           echo "      just build-rescript  (compile ReScript modules)"
+           echo "      just build-all       (everything)" ;;
+        5) echo ""; echo "Run: just doctor   (diagnose)"
+           echo "      just heal     (auto-fix)"
+           echo "Common issues: missing node_modules, stale test dirs, WASM not built." ;;
+        6) echo ""; echo "Run: just tour     (guided walkthrough)"
+           echo "Read: README.adoc, EXPLAINME.adoc, llm-warmup-dev.md" ;;
+        7) echo ""; echo "Create locales/<code>.json (e.g. locales/ja.json)"
+           echo "Add the code to your config: locales: ['en','de','ja']"
+           echo "Keys sync automatically if syncFiles: true" ;;
+        *) echo "Invalid choice. Run 'just --list' to see all commands." ;;
+    esac
+
 # Run panic-attacker pre-commit scan
 assail:
     @command -v panic-attack >/dev/null 2>&1 && panic-attack assail . || echo "panic-attack not found — install from https://github.com/hyperpolymath/panic-attacker"

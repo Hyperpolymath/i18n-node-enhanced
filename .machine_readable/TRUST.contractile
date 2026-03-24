@@ -1,0 +1,82 @@
+; SPDX-License-Identifier: MPL-2.0
+; (PMPL-1.0-or-later preferred; MPL-2.0 required for npm ecosystem compatibility)
+; TRUST.contractile — Trust boundaries for polyglot-i18n
+; Defines what LLM/SLM agents are trusted to do without asking.
+;
+; Part of the contractile family: MUST, TRUST, DUST, INTENT, ADJUST
+
+; ── Definitions ──────────────────────────────────────────────────
+;
+; TRUST (noun/verb)
+;   The permission contractile. Defines the boundary between what an AI
+;   agent may do autonomously and what requires human approval. Trust is
+;   graduated — not binary — with four levels from minimal to maximal.
+;
+; Trust levels:
+;   - maximal:    Agent may read, build, test, lint, format, heal freely.
+;                 Only destructive/external actions require approval.
+;   - standard:   Agent may read and build. Test/lint need approval.
+;   - restricted: Agent may read only. All modifications need approval.
+;   - minimal:    Agent may read specific files only. Everything else blocked.
+;
+; Scope:
+;   TRUST governs AI agent behaviour only. It does not affect human
+;   contributors — humans follow CONTRIBUTING.md and GOVERNANCE.adoc.
+;
+; Relationship to other contractiles:
+;   - MUST: Trust never overrides MUST. Even at maximal trust, MUST
+;     violations are blocked.
+;   - ADJUST: Trust does not exempt from ADJUST. All trust tiers must
+;     produce accessible output.
+;   - INTENT: TRUST.trust-deny protects the sensitive areas listed in
+;     INTENT.ask-before-touching.
+;   - DUST: Deprecated features have the same trust rules as active ones.
+;
+; ── End Definitions ──────────────────────────────────────────────
+
+(trust-contractile
+  (version "1.0.0")
+  (repo "polyglot-i18n")
+
+  (trust-level "maximal")
+
+  ; === Maximal Trust (default) ===
+  ; LLM may freely do these without asking:
+  (trust-actions
+    "read"          ; Read any file in the repo
+    "build"         ; Run build commands (npm, deno, cargo, rescript)
+    "test"          ; Run test suites (mocha, cargo test)
+    "lint"          ; Run linters (eslint, prettier, clippy)
+    "format"        ; Auto-format code
+    "doctor"        ; Run self-diagnostics
+    "heal"          ; Attempt automatic repair
+    "git-status"    ; Check git status
+    "git-diff"      ; View diffs
+    "git-log"       ; View history
+  )
+
+  ; === Denied Actions (always require human approval) ===
+  (trust-deny
+    "delete-branch"           ; Could lose work
+    "force-push"              ; Overwrites history
+    "modify-ci-secrets"       ; Security sensitive
+    "publish"                 ; npm publish — external visibility
+    "push-to-main"            ; Protected branch
+    "delete-files-bulk"       ; More than 5 files at once
+    "modify-license"          ; Legal implications (MIT origin + MPL-2.0)
+    "modify-security-policy"  ; Security implications
+    "remove-proofs"           ; Formal verification regression
+    "disable-ci-checks"       ; Safety regression
+    "modify-plural-rules"    ; CLDR compliance — must reference spec
+    "modify-package-json"    ; npm metadata — affects all consumers
+    "bump-version"           ; Version must align with CHANGELOG
+  )
+
+  ; === Trust Boundary ===
+  (trust-boundary "repo")
+
+  ; === Notes ===
+  ; This is a library consumed by external projects via npm. Changes to
+  ; the public API, plural rules, or package metadata have downstream
+  ; impact on all consumers. Treat these with care.
+)

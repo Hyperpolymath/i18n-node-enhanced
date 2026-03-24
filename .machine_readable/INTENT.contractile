@@ -1,0 +1,88 @@
+; SPDX-License-Identifier: MPL-2.0
+; (PMPL-1.0-or-later preferred; MPL-2.0 required for npm ecosystem compatibility)
+; INTENT.contractile — Purpose and scope for polyglot-i18n
+; Helps LLM/SLM agents understand what this repo IS and IS NOT.
+;
+; Part of the contractile family: MUST, TRUST, DUST, INTENT, ADJUST
+
+; ── Definitions ──────────────────────────────────────────────────
+;
+; INTENT (noun)
+;   The purpose contractile. Defines what this repository IS, what it is
+;   NOT (anti-purpose), and which architectural decisions are load-bearing.
+;   Without INTENT, LLMs drift into scope creep, reverse key decisions,
+;   or add features that belong in a different repo.
+;
+; Scope:
+;   INTENT governs the conceptual boundaries of the project — its reason
+;   for existing, its domain, and its relationship to the ecosystem.
+;   It does NOT specify implementation details (that's MUST and code).
+;
+; Relationship to other contractiles:
+;   - MUST: INTENT explains WHY certain MUSTs exist. If you don't
+;     understand a MUST, read INTENT first.
+;   - TRUST: The "ask-before-touching" section in INTENT maps directly
+;     to TRUST.trust-deny for the most sensitive areas.
+;   - ADJUST: INTENT's anti-purpose should include "this software is
+;     NOT only for users with perfect vision/hearing/mobility."
+;   - DUST: When INTENT changes (repo pivots), related DUST entries
+;     should be created for the abandoned direction.
+;
+; ── End Definitions ──────────────────────────────────────────────
+
+(intent-contractile
+  (version "1.0.0")
+  (repo "polyglot-i18n")
+
+  ; === Purpose (what this repo IS) ===
+  (purpose
+    "polyglot-i18n is a ReScript-first internationalization library for
+     JavaScript runtimes (Deno, Node.js). It is a modernised fork of i18n-node
+     by Marcus Spiegel, providing translation functions (__(), __n(), __mf()),
+     CLDR plural rules, locale detection, and MessageFormat support. The library
+     is being migrated from JavaScript to ReScript with optional WASM
+     acceleration for hot paths. It includes NLP features (stemming, fuzzy
+     matching, segmentation) and integrates with Express, Fastify, Hono, Koa,
+     and NestJS as middleware."
+  )
+
+  ; === Anti-Purpose (what this repo is NOT — prevents scope creep) ===
+  (anti-purpose
+    "This is NOT a translation management system (TMS) — it does not provide
+     a UI for translators. It is NOT a machine translation service — it reads
+     pre-written translations from JSON files. It is NOT a CMS or content
+     system — it only handles string translation. It is NOT a standalone
+     application — it is a library consumed by other projects. It is NOT only
+     for English-speaking developers — the API and docs must be clear for
+     non-native English speakers (see ADJUST.contractile)."
+  )
+
+  ; === Key Architectural Decisions That Must Not Be Reversed ===
+  (architectural-invariants
+    ("ReScript as target language — all new features in ReScript, not JS/TS")
+    ("WASM optional — always provide JS fallback, WASM is acceleration only")
+    ("i18n-node API compatibility — __(), __n(), __mf() signatures preserved")
+    ("JSON locale files — simple, editable, no binary formats for translations")
+    ("Instance pattern over singleton — concurrent-safe by default")
+    ("CLDR plural rules — follow the Unicode spec, no custom rule inventions")
+    ("Middleware pattern — integrate via init(), do not require framework coupling")
+  )
+
+  ; === Sensitive Areas (if in doubt, ask) ===
+  (ask-before-touching
+    "src/core/Plural.res — CLDR rules, changes affect all language correctness"
+    "src/core/I18n.res — public API surface, changes affect all consumers"
+    "package.json — npm metadata, version, dependencies visible to consumers"
+    "wasm/src/ — Rust WASM module, must match JS API exactly"
+    "locales/ — default translation files, used as examples and in tests"
+    ".machine_readable/ — checkpoint files, format is specified"
+    "test/ — test suite, weakening tests is a MUST violation"
+  )
+
+  ; === Ecosystem Position ===
+  (ecosystem
+    (belongs-to "standalone")
+    (depends-on ("@messageformat/core" "make-plural" "mustache" "fast-printf" "debug"))
+    (depended-on-by ("any-js-app-needing-i18n"))
+  )
+)

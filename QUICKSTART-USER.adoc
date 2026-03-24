@@ -1,0 +1,200 @@
+// SPDX-License-Identifier: MPL-2.0
+// (PMPL-1.0-or-later preferred; MPL-2.0 required for npm ecosystem compatibility)
+// SPDX-FileCopyrightText: 2026 Jonathan D.A. Jewell
+= QUICKSTART: polyglot-i18n
+:author: Jonathan D.A. Jewell
+:toc: left
+:toclevels: 2
+:icons: font
+:source-highlighter: rouge
+
+== What Is This?
+
+polyglot-i18n is an internationalization (i18n) library for JavaScript/ReScript
+applications. It is a fork of i18n-node by Marcus Spiegel, reimagined with
+ReScript-first types, WASM-accelerated plural rules, and NLP features
+(stemming, fuzzy matching, segmentation).
+
+It supports Express, Fastify, Hono, Koa, NestJS, and standalone usage.
+
+== Prerequisites
+
+You need one of the following runtimes:
+
+[cols="1,2,1"]
+|===
+| Runtime | Install | Check
+
+| Deno 1.40+
+| `curl -fsSL https://deno.land/install.sh \| sh`
+| `deno --version`
+
+| Node.js 18+
+| `asdf install nodejs latest` or https://nodejs.org/
+| `node --version`
+|===
+
+Optional:
+
+* **just** -- task runner: `cargo install just`
+* **Rust** -- for WASM module: `rustup toolchain install stable`
+
+== Install & Run (Fastest Path)
+
+=== As a Dependency
+
+[source,bash]
+----
+# In your project
+npm install polyglot-i18n
+# or
+deno cache npm:polyglot-i18n
+----
+
+=== From Source
+
+[source,bash]
+----
+cd polyglot-i18n
+just install           # auto-detects package manager
+just test              # verify everything works
+----
+
+== Basic Usage
+
+[source,javascript]
+----
+const { I18n } = require('polyglot-i18n');
+
+const i18n = new I18n({
+  locales: ['en', 'de', 'fr'],
+  directory: './locales',
+  defaultLocale: 'en'
+});
+
+// Basic translation
+i18n.__('Hello');                          // "Hello"
+i18n.__('Hello %s', 'World');              // "Hello World"
+
+// Plurals
+i18n.__n('%s cat', '%s cats', 3);          // "3 cats"
+
+// MessageFormat (ICU)
+i18n.__mf('{N, plural, one{# item} other{# items}}', { N: 5 });
+
+// Mustache templates
+i18n.__('Welcome {{name}}', { name: 'Alice' });
+----
+
+=== Express Middleware
+
+[source,javascript]
+----
+const express = require('express');
+const { I18n } = require('polyglot-i18n');
+
+const app = express();
+const i18n = new I18n({
+  locales: ['en', 'de'],
+  directory: './locales',
+  cookie: 'locale'
+});
+
+app.use(i18n.init);
+
+app.get('/', (req, res) => {
+  res.send(res.__('Hello'));
+});
+----
+
+== Locale Detection Order
+
+The library checks these sources in order:
+
+1. Query parameter (`?lang=de`)
+2. Cookie value (`locale` cookie)
+3. `Accept-Language` header
+4. Default locale
+
+== Translation File Format
+
+Place JSON files in your `locales/` directory:
+
+.locales/en.json
+[source,json]
+----
+{
+  "Hello": "Hello",
+  "greeting": {
+    "formal": "Good day",
+    "informal": "Hey there"
+  }
+}
+----
+
+.locales/de.json
+[source,json]
+----
+{
+  "Hello": "Hallo",
+  "greeting": {
+    "formal": "Guten Tag",
+    "informal": "Hey"
+  }
+}
+----
+
+Enable `objectNotation: true` to use dot notation: `__('greeting.formal')`.
+
+== Key Directories
+
+[cols="1,3"]
+|===
+| Path | Purpose
+
+| `src/core/` | ReScript core modules (I18n, Catalog, Locale, Plural, etc.)
+| `locales/` | Default translation JSON files
+| `examples/` | Express, Fastify, Hono, Koa, NestJS integrations
+| `wasm/` | Rust WASM acceleration module
+| `bindings/rescript/` | ReScript type bindings
+| `config/` | Nickel type-safe configuration
+| `test/` | Mocha test suite
+|===
+
+== Troubleshooting
+
+[cols="1,2"]
+|===
+| Symptom | Fix
+
+| Missing translations show key name
+| Check file exists in `locales/` and locale is listed in config
+
+| Plural forms incorrect
+| Verify CLDR rules for your language in `Plural.res`
+
+| `objectNotation` not working
+| Set `objectNotation: true` in config
+
+| WASM module not loading
+| Build it first: `just build-wasm` (requires Rust)
+|===
+
+== Getting Help
+
+[source,bash]
+----
+just help-me           # interactive help menu
+just tour              # guided tour of the codebase
+just doctor            # diagnose common problems
+just heal              # attempt automatic fixes
+----
+
+== Further Reading
+
+* `README.adoc` -- full API documentation and architecture
+* `EXPLAINME.adoc` -- evidence backing README claims
+* `ROADMAP.adoc` -- planned features (ReScript migration, WASM acceleration)
+* `examples/` -- working integration examples
+* https://messageformat.github.io/ -- ICU MessageFormat reference
+* https://cldr.unicode.org/index/cldr-spec/plural-rules -- CLDR plural rules
