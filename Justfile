@@ -13,6 +13,8 @@ set dotenv-load
 set export
 
 # Environment variables
+import? "contractile.just"
+
 export NODE_ENV := env_var_or_default("NODE_ENV", "development")
 export RUST_LOG := env_var_or_default("RUST_LOG", "info")
 export DENO_DIR := env_var_or_default("DENO_DIR", ".deno")
