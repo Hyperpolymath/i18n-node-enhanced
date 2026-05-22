@@ -396,7 +396,7 @@ See link:CONTRIBUTING.md[CONTRIBUTING.md] for development setup and guidelines.
 
 == License
 
-PMPL-1.0-or-later
+MPL-2.0
 
 Based on https://github.com/mashpie/i18n-node[i18n-node] by Marcus Spiegel (MIT).
 

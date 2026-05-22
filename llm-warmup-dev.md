@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MPL-2.0
-# (PMPL-1.0-or-later preferred; MPL-2.0 required for npm ecosystem compatibility)
+# (MPL-2.0 preferred; MPL-2.0 required for npm ecosystem compatibility)
 # LLM Warmup: polyglot-i18n (Developer Guide)
 
 ## Project Identity
@@ -8,7 +8,7 @@
 **Type:** JavaScript/ReScript library (npm package)
 **Primary language:** ReScript (migration in progress from JavaScript)
 **Secondary languages:** Rust (WASM), JavaScript (legacy), Nickel (config)
-**License:** MPL-2.0 (PMPL-1.0-or-later preferred)
+**License:** MPL-2.0 (MPL-2.0 preferred)
 **Author:** Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
 **Origin:** Fork of i18n-node by Marcus Spiegel (MIT)
 
@@ -315,6 +315,6 @@ All in `.machine_readable/6a2/`:
 
 ## License
 
-MPL-2.0 (PMPL-1.0-or-later preferred; MPL-2.0 required for npm ecosystem).
+MPL-2.0 (MPL-2.0 preferred; MPL-2.0 required for npm ecosystem).
 Original i18n-node code: MIT by Marcus Spiegel.
 Copyright 2024-2026 Jonathan D.A. Jewell.

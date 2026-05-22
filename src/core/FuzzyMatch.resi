@@ -1,5 +1,5 @@
 // FuzzyMatch - Approximate string matching (agrep-style)
-// SPDX-License-Identifier: PMPL-1.0-or-later
+// SPDX-License-Identifier: MPL-2.0
 
 // Match result with score and distance
 type match = {

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MPL-2.0
-# (PMPL-1.0-or-later preferred; MPL-2.0 required for npm ecosystem compatibility)
+# (MPL-2.0 preferred; MPL-2.0 required for npm ecosystem compatibility)
 # LLM Warmup: polyglot-i18n (User Guide)
 
 ## What This Project Does
@@ -114,5 +114,5 @@ JSON files in `locales/`, one per language:
 
 ## License
 
-MPL-2.0 (PMPL-1.0-or-later preferred; MPL-2.0 for npm ecosystem).
+MPL-2.0 (MPL-2.0 preferred; MPL-2.0 for npm ecosystem).
 Original i18n-node code: MIT by Marcus Spiegel.

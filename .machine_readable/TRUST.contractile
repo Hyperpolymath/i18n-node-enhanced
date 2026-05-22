@@ -1,5 +1,5 @@
 ; SPDX-License-Identifier: MPL-2.0
-; (PMPL-1.0-or-later preferred; MPL-2.0 required for npm ecosystem compatibility)
+; (MPL-2.0 preferred; MPL-2.0 required for npm ecosystem compatibility)
 ; TRUST.contractile — Trust boundaries for polyglot-i18n
 ; Defines what LLM/SLM agents are trusted to do without asking.
 ;

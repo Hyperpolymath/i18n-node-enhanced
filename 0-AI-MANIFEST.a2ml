@@ -1,5 +1,5 @@
 ; SPDX-License-Identifier: MPL-2.0
-; (PMPL-1.0-or-later preferred; MPL-2.0 required for npm ecosystem compatibility)
+; (MPL-2.0 preferred; MPL-2.0 required for npm ecosystem compatibility)
 ; 0-AI-MANIFEST.a2ml — Universal AI entry point for polyglot-i18n
 ;
 ; ALL AI agents (Claude, Gemini, OpenAI, etc.) MUST read this file FIRST.

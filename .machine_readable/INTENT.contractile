@@ -1,5 +1,5 @@
 ; SPDX-License-Identifier: MPL-2.0
-; (PMPL-1.0-or-later preferred; MPL-2.0 required for npm ecosystem compatibility)
+; (MPL-2.0 preferred; MPL-2.0 required for npm ecosystem compatibility)
 ; INTENT.contractile — Purpose and scope for polyglot-i18n
 ; Helps LLM/SLM agents understand what this repo IS and IS NOT.
 ;

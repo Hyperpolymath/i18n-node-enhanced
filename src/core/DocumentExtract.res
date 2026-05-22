@@ -1,6 +1,6 @@
 // DocumentExtract - Extract translatable text from documents
 // Uses Pandoc for format conversion, Hunspell for spell checking
-// SPDX-License-Identifier: PMPL-1.0-or-later
+// SPDX-License-Identifier: MPL-2.0
 
 type inputFormat =
   | Markdown
