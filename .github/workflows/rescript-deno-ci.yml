@@ -13,7 +13,7 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - uses: denoland/setup-deno@909cc5acb0135c37a79510dd77767e217930de55
+      - uses: denoland/setup-deno@909cc5acb0fdd60627fb858598759246509fa755
         with:
           deno-version: v1.x
       
@@ -42,7 +42,7 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - uses: denoland/setup-deno@909cc5acb0135c37a79510dd77767e217930de55
+      - uses: denoland/setup-deno@909cc5acb0fdd60627fb858598759246509fa755
       - name: Check permissions
         run: |
           # Audit for dangerous permissions
