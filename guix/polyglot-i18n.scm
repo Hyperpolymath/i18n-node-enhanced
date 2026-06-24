@@ -1,5 +1,5 @@
 ;;; polyglot-i18n.scm - Guix package definition
-;;; SPDX-License-Identifier: MPL-2.0-or-later
+;;; SPDX-License-Identifier: MPL-2.0
 
 (define-module (polyglot-i18n)
   #:use-module (guix packages)
