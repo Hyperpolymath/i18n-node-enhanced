@@ -1,5 +1,5 @@
 # polyglot-i18n Language Cladogram Viewer
-# SPDX-License-Identifier: MPL-2.0-or-later
+# SPDX-License-Identifier: MPL-2.0
 
 name = "LanguageCladogram"
 uuid = "a3b2c1d0-e4f5-6789-abcd-ef0123456789"

@@ -1,4 +1,4 @@
-;; SPDX-License-Identifier: MPL-2.0-or-later
+;; SPDX-License-Identifier: MPL-2.0
 ;; polyglot-i18n Testing Report
 ;; Generated: 2025-12-29
 

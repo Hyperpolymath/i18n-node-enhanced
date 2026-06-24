@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MPL-2.0
+# SPDX-License-Identifier: CC-BY-SA-4.0
 # (MPL-2.0 preferred; MPL-2.0 required for npm ecosystem compatibility)
 # LLM Warmup: polyglot-i18n (Developer Guide)
 

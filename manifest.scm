@@ -1,7 +1,7 @@
 ;;; manifest.scm --- Development manifest for i18n-node-enhanced
 ;;;
 ;;; Copyright (C) 2024-2025 i18n-node-enhanced contributors
-;;; SPDX-License-Identifier: MPL-2.0-or-later
+;;; SPDX-License-Identifier: MPL-2.0
 ;;;
 ;;; This manifest defines the complete development environment for
 ;;; i18n-node-enhanced, including all toolchains and utilities.

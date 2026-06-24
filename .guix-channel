@@ -1,7 +1,7 @@
 ;; .guix-channel --- GNU Guix channel metadata
 ;;
 ;; Copyright (C) 2024-2025 i18n-node-enhanced contributors
-;; SPDX-License-Identifier: MIT
+;; SPDX-License-Identifier: MPL-2.0
 ;;
 ;; This file defines the i18n-node-enhanced Guix channel, enabling users
 ;; to install and update the package through Guix's channel mechanism.

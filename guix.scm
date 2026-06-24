@@ -1,7 +1,7 @@
 ;;; guix.scm --- GNU Guix package definition for polyglot-i18n
 ;;;
 ;;; Copyright (C) 2024-2025 polyglot-i18n contributors
-;;; SPDX-License-Identifier: MPL-2.0-or-later
+;;; SPDX-License-Identifier: MPL-2.0
 ;;;
 ;;; This file defines the GNU Guix package for polyglot-i18n,
 ;;; enabling reproducible builds and supply-chain integrity.
