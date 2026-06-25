@@ -6,18 +6,15 @@ on:
     tags:
       - 'v*'
 
-
 permissions:
   contents: read
 
 jobs:
   test:
     name: Test Before Release
-
     runs-on: ubuntu-latest
     permissions:
       contents: read
-
     steps:
       - name: Checkout code
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -25,32 +22,19 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
-          node-version: '18.x'
-          cache: 'npm'
+          deno-version: v2.x
+      - name: Build (ReScript -> JS)
+        run: deno task build
+      - name: Test
+        run: deno task test
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run tests
-        run: npm test
-
-      - name: Run linter
-        run: npx eslint i18n.js index.js
-
-      - name: Validate locales
-        run: node tools/locale-validator.js --strict
-
-  publish:
-    name: Publish to NPM
-
+  publish-jsr:
+    name: Publish to JSR
     runs-on: ubuntu-latest
-
     needs: test
-
     permissions:
-      contents: write
-      id-token: write
-
+      contents: read
+      id-token: write   # JSR records build provenance from this
     steps:
       - name: Checkout code
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -58,75 +42,26 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
-          node-version: '18.x'
-          registry-url: 'https://registry.npmjs.org'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Publish to NPM
-        run: npm publish --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          deno-version: v2.x
+      - name: Build (ReScript -> JS)
+        run: deno task build
+      - name: Publish to JSR
+        run: deno publish
 
   github-release:
     name: Create GitHub Release
-
     runs-on: ubuntu-latest
-
-    needs: publish
-
+    needs: publish-jsr
     permissions:
       contents: write
-
     steps:
       - name: Checkout code
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0
-
-      - name: Extract version from tag
-        id: version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-
-      - name: Extract changelog
-        id: changelog
-        run: |
-          # Extract changelog for this version
-          VERSION=${{ steps.version.outputs.VERSION }}
-          CHANGELOG=$(sed -n "/## \[$VERSION\]/,/## \[/p" CHANGELOG.md | sed '$d')
-          echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
-          echo "$CHANGELOG" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
       - name: Create GitHub Release
-        uses: actions/create-release@0cb9c9b65d5d1901c1f53e5e66eaf4afd303e70e # v1.1.4
+        uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631 # v2
+        with:
+          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ steps.version.outputs.VERSION }}
-          body: ${{ steps.changelog.outputs.CHANGELOG }}
-          draft: false
-          prerelease: false
-
-  notify:
-    name: Notify Release
-
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-
-    needs: [publish, github-release]
-
-    steps:
-      - name: Extract version
-        id: version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-
-      - name: Post to community
-        run: |
-          echo "✅ Released version ${{ steps.version.outputs.VERSION }}"
-          echo "NPM: https://www.npmjs.com/package/i18n/v/${{ steps.version.outputs.VERSION }}"
-          echo "GitHub: https://github.com/mashpie/i18n-node/releases/tag/v${{ steps.version.outputs.VERSION }}"
