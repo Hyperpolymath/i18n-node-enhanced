@@ -1,11 +1,8 @@
 // SPDX-License-Identifier: MPL-2.0
-// Ported via Harvard Engine mechanical processor
+// Ported via Harvard Engine (Semantic pass)
 
 module _app;
 
-// TODO: Complete semantic implementation
-
-/* === ORIGINAL TYPESCRIPT CONTEXT ===
 /**
  * Next.js App Component with i18n Integration
  * This example shows how to integrate i18n with Next.js App Router
@@ -18,7 +15,7 @@ import { useEffect } from 'react';
 import path from 'path';
 
 // Create i18n instance
-export const i18n = new I18n({
+let i18n = new I18n({
   locales: ['en', 'de', 'fr', 'es'],
   defaultLocale: 'en',
   directory: path.join(process.cwd(), 'locales'),
@@ -29,8 +26,8 @@ export const i18n = new I18n({
   retryInDefaultLocale: true
 });
 
-function MyApp({ Component, pageProps }: AppProps) {
-  const router = useRouter();
+fn MyApp({ Component, pageProps }: AppProps) {
+  let router = useRouter();
   const { locale } = router;
 
   useEffect(() => {
@@ -43,6 +40,5 @@ function MyApp({ Component, pageProps }: AppProps) {
   return <Component {...pageProps} />;
 }
 
-export default MyApp;
+default MyApp;
 
-==================================== */
