@@ -1,11 +1,8 @@
 // SPDX-License-Identifier: MPL-2.0
-// Ported via Harvard Engine mechanical processor
+// Ported via Harvard Engine (Semantic pass)
 
 module index;
 
-// TODO: Complete semantic implementation
-
-/* === ORIGINAL TYPESCRIPT CONTEXT ===
 /**
  * Next.js Home Page with i18n
  */
@@ -15,7 +12,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { i18n } from './_app';
 
-interface HomeProps {
+struct HomeProps {
   translations: {
     title: string;
     welcome: string;
@@ -25,10 +22,10 @@ interface HomeProps {
 }
 
 const Home: NextPage<HomeProps> = ({ translations }) => {
-  const router = useRouter();
+  let router = useRouter();
   const { locale, locales } = router;
 
-  const changeLocale = (newLocale: string) => {
+  let changeLocale = (newLocale: string) => {
     router.push(router.pathname, router.asPath, { locale: newLocale });
   };
 
@@ -68,7 +65,7 @@ const Home: NextPage<HomeProps> = ({ translations }) => {
   );
 };
 
-export const getStaticProps: GetStaticProps<HomeProps> = async ({ locale }) => {
+const getStaticProps: GetStaticProps<HomeProps> = async ({ locale }) => {
   // Set locale for server-side rendering
   if (locale) {
     i18n.setLocale(locale);
@@ -86,6 +83,5 @@ export const getStaticProps: GetStaticProps<HomeProps> = async ({ locale }) => {
   };
 };
 
-export default Home;
+default Home;
 
-==================================== */
