@@ -1,29 +1,33 @@
-# Performance Benchmarks
+== Performance Benchmarks
 
-This directory contains performance benchmarks for i18n to help optimize and monitor performance.
+This directory contains performance benchmarks for i18n to help optimize
+and monitor performance.
 
-## Available Benchmarks
+=== Available Benchmarks
 
-### 1. Translation Benchmarks (`translation-bench.js`)
+==== 1. Translation Benchmarks (`+translation-bench.js+`)
 
 Tests performance of core translation methods:
 
-- Simple translation
-- sprintf formatting
-- Mustache formatting
-- Plural translations
-- MessageFormat
-- Object notation
-- Locale switching
-- Catalog retrieval
+* Simple translation
+* sprintf formatting
+* Mustache formatting
+* Plural translations
+* MessageFormat
+* Object notation
+* Locale switching
+* Catalog retrieval
 
-**Run:**
-```bash
+*Run:*
+
+[source,bash]
+----
 node benchmarks/translation-bench.js
-```
+----
 
-**Example Output:**
-```
+*Example Output:*
+
+....
 === i18n Translation Performance Benchmarks ===
 
 1. Simple Translation (__("Hello"))
@@ -38,25 +42,28 @@ node benchmarks/translation-bench.js
     Average: 0.001235ms per operation
     Throughput: 809,717 ops/sec
 ...
-```
+....
 
-### 2. Configuration Comparison (`comparison-bench.js`)
+==== 2. Configuration Comparison (`+comparison-bench.js+`)
 
 Compares performance impact of different configurations:
 
-- `updateFiles` ON vs OFF
-- `objectNotation` ON vs OFF
-- `staticCatalog` vs file-based
-- Number of locales (1 vs 3 vs 10)
-- Mustache enabled vs disabled
+* `+updateFiles+` ON vs OFF
+* `+objectNotation+` ON vs OFF
+* `+staticCatalog+` vs file-based
+* Number of locales (1 vs 3 vs 10)
+* Mustache enabled vs disabled
 
-**Run:**
-```bash
+*Run:*
+
+[source,bash]
+----
 node benchmarks/comparison-bench.js
-```
+----
 
-**Example Output:**
-```
+*Example Output:*
+
+....
 === i18n Configuration Comparison Benchmarks ===
 
 Results:
@@ -71,15 +78,17 @@ updateFiles: true                         234,567    0.004263ms
 Fastest: staticCatalog (preloaded)
 Slowest: updateFiles: true
 Speedup: 10.0x
-```
+....
 
-## Performance Optimization Tips
+=== Performance Optimization Tips
 
-Based on benchmark results, here are recommended configurations for different scenarios:
+Based on benchmark results, here are recommended configurations for
+different scenarios:
 
-### 1. Production (High Performance)
+==== 1. Production (High Performance)
 
-```javascript
+[source,javascript]
+----
 const i18n = new I18n({
   staticCatalog: {
     en: require('./locales/en.json'),
@@ -90,17 +99,15 @@ const i18n = new I18n({
   autoReload: false,     // Disable file watching
   syncFiles: false       // Disable sync
 });
-```
+----
 
-**Benefits:**
-- 10x faster than file-based
-- No disk I/O during runtime
-- Minimal memory overhead
-- Predictable performance
+*Benefits:* - 10x faster than file-based - No disk I/O during runtime -
+Minimal memory overhead - Predictable performance
 
-### 2. Development (Convenience)
+==== 2. Development (Convenience)
 
-```javascript
+[source,javascript]
+----
 const i18n = new I18n({
   locales: ['en', 'de'],
   directory: './locales',
@@ -108,16 +115,15 @@ const i18n = new I18n({
   autoReload: true,      // Hot-reload on changes
   objectNotation: true   // Nested keys
 });
-```
+----
 
-**Benefits:**
-- Automatically adds new translations
-- Hot-reloads during development
-- Easy to manage hierarchical keys
+*Benefits:* - Automatically adds new translations - Hot-reloads during
+development - Easy to manage hierarchical keys
 
-### 3. Balanced (Production + Updates)
+==== 3. Balanced (Production + Updates)
 
-```javascript
+[source,javascript]
+----
 const i18n = new I18n({
   locales: ['en', 'de'],
   directory: './locales',
@@ -126,46 +132,46 @@ const i18n = new I18n({
   objectNotation: true,
   retryInDefaultLocale: true
 });
-```
+----
 
-**Benefits:**
-- Good performance
-- Flexibility for runtime locale changes
+*Benefits:* - Good performance - Flexibility for runtime locale changes
 - Fallback to default locale
 
-## Interpreting Results
+=== Interpreting Results
 
-### Throughput (ops/sec)
+==== Throughput (ops/sec)
 
-Higher is better. Indicates how many operations per second can be performed.
+Higher is better. Indicates how many operations per second can be
+performed.
 
-- **> 1,000,000 ops/sec**: Excellent
-- **500,000 - 1,000,000 ops/sec**: Good
-- **100,000 - 500,000 ops/sec**: Acceptable
-- **< 100,000 ops/sec**: Needs optimization
+* *> 1,000,000 ops/sec*: Excellent
+* *500,000 - 1,000,000 ops/sec*: Good
+* *100,000 - 500,000 ops/sec*: Acceptable
+* *< 100,000 ops/sec*: Needs optimization
 
-### Average Time (ms)
+==== Average Time (ms)
 
 Lower is better. Time taken per single operation.
 
-- **< 0.001ms**: Excellent (< 1 microsecond)
-- **0.001 - 0.01ms**: Good (1-10 microseconds)
-- **0.01 - 0.1ms**: Acceptable (10-100 microseconds)
-- **> 0.1ms**: Slow (> 100 microseconds)
+* *< 0.001ms*: Excellent (< 1 microsecond)
+* *0.001 - 0.01ms*: Good (1-10 microseconds)
+* *0.01 - 0.1ms*: Acceptable (10-100 microseconds)
+* *> 0.1ms*: Slow (> 100 microseconds)
 
-### Memory Usage
+==== Memory Usage
 
 Monitor memory usage to prevent memory leaks:
 
-- **< 10 MB**: Excellent for single locale
-- **10-50 MB**: Normal for multiple locales
-- **> 50 MB**: Check for memory leaks
+* *< 10 MB*: Excellent for single locale
+* *10-50 MB*: Normal for multiple locales
+* *> 50 MB*: Check for memory leaks
 
-## Running Benchmarks in CI/CD
+=== Running Benchmarks in CI/CD
 
 Add to your CI/CD pipeline to monitor performance regressions:
 
-```yaml
+[source,yaml]
+----
 # .github/workflows/benchmarks.yml
 name: Performance Benchmarks
 
@@ -198,13 +204,14 @@ jobs:
         with:
           name: benchmark-results
           path: benchmark-results.txt
-```
+----
 
-## Custom Benchmarks
+=== Custom Benchmarks
 
 Create your own benchmarks:
 
-```javascript
+[source,javascript]
+----
 const { I18n } = require('i18n');
 
 async function customBench() {
@@ -226,13 +233,14 @@ async function customBench() {
 }
 
 customBench();
-```
+----
 
-## Profiling
+=== Profiling
 
 For detailed profiling, use Node.js built-in profiler:
 
-```bash
+[source,bash]
+----
 # CPU profiling
 node --prof benchmarks/translation-bench.js
 node --prof-process isolate-*.log > profile.txt
@@ -240,27 +248,29 @@ node --prof-process isolate-*.log > profile.txt
 # Heap profiling
 node --inspect benchmarks/translation-bench.js
 # Open chrome://inspect in Chrome
-```
+----
 
-## Continuous Monitoring
+=== Continuous Monitoring
 
 Track performance over time:
 
-```bash
+[source,bash]
+----
 # Store benchmark results with timestamp
 node benchmarks/translation-bench.js > "results-$(date +%Y%m%d).txt"
 
 # Compare with previous results
 diff results-20250101.txt results-20250115.txt
-```
+----
 
-## Performance Tips
+=== Performance Tips
 
-### 1. Cache Translations
+==== 1. Cache Translations
 
 If using same translation repeatedly:
 
-```javascript
+[source,javascript]
+----
 // Slow
 for (let i = 0; i < 1000; i++) {
   console.log(__('Welcome'));
@@ -271,26 +281,28 @@ const welcome = __('Welcome');
 for (let i = 0; i < 1000; i++) {
   console.log(welcome);
 }
-```
+----
 
-### 2. Use Static Catalog
+==== 2. Use Static Catalog
 
 Pre-load translations in production:
 
-```javascript
+[source,javascript]
+----
 const i18n = new I18n({
   staticCatalog: {
     en: require('./locales/en.json'),
     de: require('./locales/de.json')
   }
 });
-```
+----
 
-### 3. Disable Unnecessary Features
+==== 3. Disable Unnecessary Features
 
-Turn off features you don't need:
+Turn off features you don’t need:
 
-```javascript
+[source,javascript]
+----
 const i18n = new I18n({
   updateFiles: false,
   autoReload: false,
@@ -298,13 +310,14 @@ const i18n = new I18n({
   objectNotation: false,  // If not using dot notation
   mustacheConfig: { disable: true }  // If only using sprintf
 });
-```
+----
 
-### 4. Minimize Locale Switching
+==== 4. Minimize Locale Switching
 
 Locale switching has overhead. Set once per request:
 
-```javascript
+[source,javascript]
+----
 // Slow
 req.setLocale('en');
 __('Welcome');
@@ -315,16 +328,17 @@ __('Welcome');
 req.setLocale('en');
 const enWelcome = __('Welcome');
 // ... use enWelcome multiple times
-```
+----
 
-## Contributing
+=== Contributing
 
 When adding features or fixing bugs:
 
-1. Run benchmarks before and after changes
-2. Document performance impact in PR
-3. Optimize if performance degrades > 10%
+[arabic]
+. Run benchmarks before and after changes
+. Document performance impact in PR
+. Optimize if performance degrades > 10%
 
-## License
+=== License
 
 MIT - Same as i18n-node

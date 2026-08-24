@@ -1,68 +1,74 @@
-# Security Policy
+== Security Policy
 
-## Supported Versions
+=== Supported Versions
 
-We actively provide security updates for the following versions of polyglot-i18n:
+We actively provide security updates for the following versions of
+polyglot-i18n:
 
-| Version | Supported          | End of Life |
-| ------- | ------------------ | ----------- |
-| 0.16.x  | :white_check_mark: | -           |
-| 0.15.x  | :white_check_mark: | TBD         |
-| 0.14.x  | :warning: Critical fixes only | 2025-12-31 |
-| < 0.14.0 | :x:               | EOL         |
+[cols=",,",options="header",]
+|===
+|Version |Supported |End of Life
+|0.16.x |:white_check_mark: |-
+|0.15.x |:white_check_mark: |TBD
+|0.14.x |:warning: Critical fixes only |2025-12-31
+|< 0.14.0 |:x: |EOL
+|===
 
-## Reporting a Vulnerability
+=== Reporting a Vulnerability
 
-### How to Report
+==== How to Report
 
-If you discover a security vulnerability in polyglot-i18n, please report it responsibly:
+If you discover a security vulnerability in polyglot-i18n, please report
+it responsibly:
 
-**Preferred Method:**
-- GitHub Security Advisory: https://github.com/hyperpolymath/polyglot-i18n/security/advisories/new
+*Preferred Method:* - GitHub Security Advisory:
+https://github.com/hyperpolymath/polyglot-i18n/security/advisories/new
 
-**Alternative Method:**
-- Open a private security advisory on GitHub
+*Alternative Method:* - Open a private security advisory on GitHub
 
-### What to Include
+==== What to Include
 
 Please include the following information in your report:
 
-1. **Description** of the vulnerability
-2. **Steps to reproduce** the issue
-3. **Potential impact** and attack scenarios
-4. **Affected versions** (if known)
-5. **Suggested fix** (if you have one)
-6. **Your contact information** for follow-up
+[arabic]
+. *Description* of the vulnerability
+. *Steps to reproduce* the issue
+. *Potential impact* and attack scenarios
+. *Affected versions* (if known)
+. *Suggested fix* (if you have one)
+. *Your contact information* for follow-up
 
-### Response Timeline
+==== Response Timeline
 
-- **Acknowledgment**: Within 48 hours of report
-- **Initial Assessment**: Within 7 days
-- **Fix Timeline**:
-  - Critical: 7-14 days
-  - High: 14-30 days
-  - Medium: 30-60 days
-  - Low: Next planned release
+* *Acknowledgment*: Within 48 hours of report
+* *Initial Assessment*: Within 7 days
+* *Fix Timeline*:
+** Critical: 7-14 days
+** High: 14-30 days
+** Medium: 30-60 days
+** Low: Next planned release
 
-### Disclosure Policy
+==== Disclosure Policy
 
-We follow **coordinated disclosure**:
+We follow *coordinated disclosure*:
 
-1. Vulnerability reported to maintainers
-2. Fix developed and tested (private)
-3. Security advisory prepared
-4. Fix released with CVE (if applicable)
-5. Public disclosure 7 days after fix release
+[arabic]
+. Vulnerability reported to maintainers
+. Fix developed and tested (private)
+. Security advisory prepared
+. Fix released with CVE (if applicable)
+. Public disclosure 7 days after fix release
 
----
+'''''
 
-## Security Best Practices
+=== Security Best Practices
 
-### 1. User Input in Translation Keys
+==== 1. User Input in Translation Keys
 
-**⚠️ CRITICAL: Never use unsanitized user input as translation keys**
+*⚠️ CRITICAL: Never use unsanitized user input as translation keys*
 
-```javascript
+[source,javascript]
+----
 // ❌ DANGEROUS - Arbitrary file system access
 const userInput = req.query.key; // Could be "../../../etc/passwd"
 const translation = res.__(userInput);
@@ -71,15 +77,18 @@ const translation = res.__(userInput);
 const allowedKeys = ['welcome', 'goodbye', 'hello'];
 const key = allowedKeys.includes(req.query.key) ? req.query.key : 'welcome';
 const translation = res.__(key);
-```
+----
 
-**Risk**: Directory traversal, arbitrary file reads/writes, catalog pollution
+*Risk*: Directory traversal, arbitrary file reads/writes, catalog
+pollution
 
-### 2. XSS Prevention in Translations
+==== 2. XSS Prevention in Translations
 
-**⚠️ WARNING: Translations can contain HTML - sanitize user data in replacements**
+*⚠️ WARNING: Translations can contain HTML - sanitize user data in
+replacements*
 
-```javascript
+[source,javascript]
+----
 // ❌ DANGEROUS - XSS vulnerability
 const username = req.query.name; // Could be "<script>alert('XSS')</script>"
 const message = res.__('Welcome {{name}}', { name: username });
@@ -96,13 +105,14 @@ const message = res.__('Welcome {{name}}', { name: username });
 // ✅ BETTER - Use templating engine with auto-escaping
 // In EJS: <%= __('Welcome {{name}}', { name: username }) %>
 // In Handlebars: {{__ 'Welcome {{name}}' name=username}}
-```
+----
 
-### 3. Mustache Unescaped Variables
+==== 3. Mustache Unescaped Variables
 
-**⚠️ WARNING: Triple-mustache syntax bypasses HTML escaping**
+*⚠️ WARNING: Triple-mustache syntax bypasses HTML escaping*
 
-```javascript
+[source,javascript]
+----
 // ❌ DANGEROUS - Allows raw HTML injection
 const userBio = req.body.bio; // Could contain malicious HTML
 const message = res.__('Bio: {{{bio}}}', { bio: userBio });
@@ -113,13 +123,14 @@ const message = res.__('Bio: {{bio}}', { bio: userBio });
 // ✅ ACCEPTABLE - Only if you control the content
 const trustedHTML = '<strong>Admin</strong>';
 const message = res.__('User: {{{role}}}', { role: trustedHTML });
-```
+----
 
-### 4. File System Security
+==== 4. File System Security
 
-**⚠️ WARNING: File write operations can be exploited**
+*⚠️ WARNING: File write operations can be exploited*
 
-```javascript
+[source,javascript]
+----
 // ✅ SAFE Configuration
 i18n.configure({
   directory: path.resolve(__dirname, 'locales'), // Use absolute paths
@@ -137,13 +148,14 @@ i18n.configure({
   autoReload: true,   // Performance + security risk
   locales: undefined  // Auto-detects from directory (risky)
 });
-```
+----
 
-### 5. Locale Injection Prevention
+==== 5. Locale Injection Prevention
 
-**⚠️ WARNING: Validate locale values from user input**
+*⚠️ WARNING: Validate locale values from user input*
 
-```javascript
+[source,javascript]
+----
 // ❌ DANGEROUS - Arbitrary locale setting
 app.get('/set-locale/:locale', (req, res) => {
   req.setLocale(req.params.locale); // Could be "../../../etc/passwd"
@@ -165,13 +177,15 @@ app.get('/set-locale/:locale', (req, res) => {
 
   res.redirect('/');
 });
-```
+----
 
-### 6. MessageFormat Injection
+==== 6. MessageFormat Injection
 
-**⚠️ WARNING: User-controlled MessageFormat strings can cause DoS or crashes**
+*⚠️ WARNING: User-controlled MessageFormat strings can cause DoS or
+crashes*
 
-```javascript
+[source,javascript]
+----
 // ❌ DANGEROUS - User controls MessageFormat syntax
 const userFormat = req.body.format; // "{x, select, , {,}} ..." - malformed
 const message = res.__mf(userFormat, { x: 'test' }); // May crash
@@ -185,13 +199,14 @@ const formats = {
 const formatKey = req.query.type;
 const format = formats[formatKey] || formats.items;
 const message = res.__mf(format, { N: count });
-```
+----
 
-### 7. Cookie Security
+==== 7. Cookie Security
 
-**✅ Recommended cookie configuration:**
+*✅ Recommended cookie configuration:*
 
-```javascript
+[source,javascript]
+----
 // Set locale cookie securely
 res.cookie('locale', locale, {
   httpOnly: true,      // Prevents XSS access
@@ -206,13 +221,14 @@ app.use(cookieParser('your-secret-key-here')); // Use strong secret
 i18n.configure({
   cookie: 'locale'
 });
-```
+----
 
-### 8. Prototype Pollution Prevention
+==== 8. Prototype Pollution Prevention
 
-**⚠️ WARNING: Object notation can be vulnerable to prototype pollution**
+*⚠️ WARNING: Object notation can be vulnerable to prototype pollution*
 
-```javascript
+[source,javascript]
+----
 // ❌ POTENTIALLY DANGEROUS with objectNotation: true
 const key = req.query.key; // Could be "__proto__.polluted"
 const value = res.__(key);
@@ -227,13 +243,14 @@ const allowedPattern = /^[a-z0-9._-]+$/i;
 if (!allowedPattern.test(key)) {
   throw new Error('Invalid translation key');
 }
-```
+----
 
-### 9. Denial of Service (DoS) Prevention
+==== 9. Denial of Service (DoS) Prevention
 
-**⚠️ WARNING: Large translation files and excessive operations**
+*⚠️ WARNING: Large translation files and excessive operations*
 
-```javascript
+[source,javascript]
+----
 // ✅ Recommendations:
 // 1. Limit locale file sizes (< 1MB recommended)
 // 2. Use staticCatalog in production (faster, safer)
@@ -256,13 +273,14 @@ app.use('/set-locale', rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 10 // 10 requests per window
 }));
-```
+----
 
-### 10. Dependency Security
+==== 10. Dependency Security
 
-**Keep dependencies updated:**
+*Keep dependencies updated:*
 
-```bash
+[source,bash]
+----
 # Check for vulnerabilities
 npm audit
 
@@ -274,53 +292,53 @@ npm update
 
 # Check outdated packages
 npm outdated
-```
+----
 
----
+'''''
 
-## Security Checklist for Production
+=== Security Checklist for Production
 
-- [ ] Set `updateFiles: false` in production
-- [ ] Set `autoReload: false` in production
-- [ ] Use `staticCatalog` for better performance and security
-- [ ] Validate all user input before using in translations
-- [ ] Escape HTML in translation replacements
-- [ ] Use absolute paths for `directory` configuration
-- [ ] Whitelist allowed locales, validate locale switching
-- [ ] Use secure cookie settings (httpOnly, secure, sameSite)
-- [ ] Never use user input as translation keys
-- [ ] Keep dependencies updated (`npm audit`)
-- [ ] Disable object notation if keys come from user input
-- [ ] Rate-limit locale switching endpoints
-- [ ] Use Content Security Policy (CSP) headers
-- [ ] Regularly review and sanitize translation files
-- [ ] Monitor for suspicious locale file changes
+* [ ] Set `+updateFiles: false+` in production
+* [ ] Set `+autoReload: false+` in production
+* [ ] Use `+staticCatalog+` for better performance and security
+* [ ] Validate all user input before using in translations
+* [ ] Escape HTML in translation replacements
+* [ ] Use absolute paths for `+directory+` configuration
+* [ ] Whitelist allowed locales, validate locale switching
+* [ ] Use secure cookie settings (httpOnly, secure, sameSite)
+* [ ] Never use user input as translation keys
+* [ ] Keep dependencies updated (`+npm audit+`)
+* [ ] Disable object notation if keys come from user input
+* [ ] Rate-limit locale switching endpoints
+* [ ] Use Content Security Policy (CSP) headers
+* [ ] Regularly review and sanitize translation files
+* [ ] Monitor for suspicious locale file changes
 
----
+'''''
 
-## Known Security Issues
+=== Known Security Issues
 
-### Resolved
+==== Resolved
 
-- **CVE-2025-57353** - @messageformat/runtime Prototype Pollution
-  - **Status**: Fixed in v0.15.3
-  - **Action**: Updated @messageformat/runtime to 3.0.2
-  - **Severity**: Medium
+* *CVE-2025-57353* - @messageformat/runtime Prototype Pollution
+** *Status*: Fixed in v0.15.3
+** *Action*: Updated @messageformat/runtime to 3.0.2
+** *Severity*: Medium
 
-### Active Monitoring
+==== Active Monitoring
 
-We continuously monitor:
-- Dependency vulnerabilities via npm audit
-- Security advisories for MessageFormat and Mustache
-- Community-reported issues
+We continuously monitor: - Dependency vulnerabilities via npm audit -
+Security advisories for MessageFormat and Mustache - Community-reported
+issues
 
----
+'''''
 
-## Security Headers Recommendation
+=== Security Headers Recommendation
 
 When using i18n in web applications, implement these security headers:
 
-```javascript
+[source,javascript]
+----
 // Express helmet middleware
 const helmet = require('helmet');
 
@@ -338,24 +356,27 @@ app.use(helmet({
     preload: true
   }
 }));
-```
+----
 
----
+'''''
 
-## Additional Resources
+=== Additional Resources
 
-- [OWASP Top 10](https://owasp.org/www-project-top-ten/)
-- [OWASP i18n Security Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Internationalization_Security_Cheat_Sheet.html)
-- [Node.js Security Best Practices](https://nodejs.org/en/docs/guides/security/)
-- [Express Security Best Practices](https://expressjs.com/en/advanced/best-practice-security.html)
+* https://owasp.org/www-project-top-ten/[OWASP Top 10]
+* https://cheatsheetseries.owasp.org/cheatsheets/Internationalization_Security_Cheat_Sheet.html[OWASP
+i18n Security Cheat Sheet]
+* https://nodejs.org/en/docs/guides/security/[Node.js Security Best
+Practices]
+* https://expressjs.com/en/advanced/best-practice-security.html[Express
+Security Best Practices]
 
----
+'''''
 
-## Contact
+=== Contact
 
-For security-related questions or concerns:
-- **Security Issues**: Use GitHub Security Advisory or email security contact
-- **General Questions**: Open a GitHub issue
-- **Commercial Support**: Contact through Tidelift
+For security-related questions or concerns: - *Security Issues*: Use
+GitHub Security Advisory or email security contact - *General
+Questions*: Open a GitHub issue - *Commercial Support*: Contact through
+Tidelift
 
 Last Updated: 2025-12-07
