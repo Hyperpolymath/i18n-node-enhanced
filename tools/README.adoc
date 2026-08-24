@@ -1,23 +1,21 @@
-# i18n Development Tools
+== i18n Development Tools
 
-This directory contains utilities for managing and validating i18n translation files.
+This directory contains utilities for managing and validating i18n
+translation files.
 
-## Tools
+=== Tools
 
-### 1. Locale Validator (`locale-validator.js`)
+==== 1. Locale Validator (`+locale-validator.js+`)
 
-Validates translation files for common issues like:
-- Malformed JSON
-- Duplicate keys (case variations)
-- Suspicious values (excessive placeholders, typos)
-- Invalid plural forms
-- Security issues (XSS, injection)
-- Formatting inconsistencies
-- Untranslated strings
+Validates translation files for common issues like: - Malformed JSON -
+Duplicate keys (case variations) - Suspicious values (excessive
+placeholders, typos) - Invalid plural forms - Security issues (XSS,
+injection) - Formatting inconsistencies - Untranslated strings
 
-**Usage:**
+*Usage:*
 
-```bash
+[source,bash]
+----
 # Basic validation
 node tools/locale-validator.js
 
@@ -32,19 +30,17 @@ node tools/locale-validator.js --strict
 
 # JSON output for CI/CD
 node tools/locale-validator.js --json
-```
+----
 
-**Options:**
-- `--dir <path>` - Directory containing locale files (default: ./locales)
-- `--reference <locale>` - Reference locale to compare against (default: en)
-- `--fix` - Auto-fix issues where possible
-- `--format` - Format JSON files
-- `--strict` - Strict mode - exit with error on warnings
-- `--json` - Output results as JSON
+*Options:* - `+--dir <path>+` - Directory containing locale files
+(default: ./locales) - `+--reference <locale>+` - Reference locale to
+compare against (default: en) - `+--fix+` - Auto-fix issues where
+possible - `+--format+` - Format JSON files - `+--strict+` - Strict mode
+- exit with error on warnings - `+--json+` - Output results as JSON
 
-**Example Output:**
+*Example Output:*
 
-```
+....
 === i18n Locale Validation Results ===
 
 ⚠️  WARNINGS:
@@ -62,15 +58,16 @@ Warnings: 2
 Info: 3
 
 ✅ Validation passed!
-```
+....
 
-### 2. Missing Translations Reporter (`missing-translations.js`)
+==== 2. Missing Translations Reporter (`+missing-translations.js+`)
 
 Generates detailed reports of missing translations across locales.
 
-**Usage:**
+*Usage:*
 
-```bash
+[source,bash]
+----
 # Basic report
 node tools/missing-translations.js
 
@@ -88,19 +85,20 @@ node tools/missing-translations.js --locale de
 
 # Create missing keys in locale files
 node tools/missing-translations.js --locale de --create-missing
-```
+----
 
-**Options:**
-- `--dir <path>` - Directory containing locale files (default: ./locales)
-- `--reference <locale>` - Reference locale (default: en)
-- `--format <type>` - Output format: text|json|csv|markdown (default: text)
-- `--output <file>` - Output file (default: stdout)
-- `--locale <locale>` - Check specific locale only
-- `--create-missing` - Create missing translation files with TODO markers
+*Options:* - `+--dir <path>+` - Directory containing locale files
+(default: ./locales) - `+--reference <locale>+` - Reference locale
+(default: en) - `+--format <type>+` - Output format:
+text|json|csv|markdown (default: text) - `+--output <file>+` - Output
+file (default: stdout) - `+--locale <locale>+` - Check specific locale
+only - `+--create-missing+` - Create missing translation files with TODO
+markers
 
-**Example Output (Markdown):**
+*Example Output (Markdown):*
 
-```markdown
+[source,markdown]
+----
 # Missing Translations Report
 
 **Reference Locale:** en
@@ -124,15 +122,16 @@ node tools/missing-translations.js --locale de --create-missing
 - `error.notFound`
 - `error.serverError`
 - `welcome.subtitle`
-```
+----
 
-## CI/CD Integration
+=== CI/CD Integration
 
-### GitHub Actions
+==== GitHub Actions
 
-Add to `.github/workflows/i18n-check.yml`:
+Add to `+.github/workflows/i18n-check.yml+`:
 
-```yaml
+[source,yaml]
+----
 name: i18n Validation
 
 on: [push, pull_request]
@@ -163,13 +162,14 @@ jobs:
         with:
           name: translation-coverage
           path: coverage.json
-```
+----
 
-### Pre-commit Hook
+==== Pre-commit Hook
 
-Add to `.git/hooks/pre-commit`:
+Add to `+.git/hooks/pre-commit+`:
 
-```bash
+[source,bash]
+----
 #!/bin/sh
 
 # Validate locale files before commit
@@ -181,18 +181,21 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "✅ Locale validation passed"
-```
+----
 
 Make executable:
-```bash
+
+[source,bash]
+----
 chmod +x .git/hooks/pre-commit
-```
+----
 
-### NPM Scripts
+==== NPM Scripts
 
-Add to `package.json`:
+Add to `+package.json+`:
 
-```json
+[source,json]
+----
 {
   "scripts": {
     "i18n:validate": "node tools/locale-validator.js",
@@ -202,61 +205,68 @@ Add to `package.json`:
     "i18n:missing": "node tools/missing-translations.js"
   }
 }
-```
+----
 
 Usage:
-```bash
+
+[source,bash]
+----
 npm run i18n:validate       # Validate locales
 npm run i18n:fix            # Auto-fix issues
 npm run i18n:coverage       # Generate coverage report
 npm run i18n:missing        # Check missing translations
-```
+----
 
-## Best Practices
+=== Best Practices
 
-### 1. Regular Validation
+==== 1. Regular Validation
 
-Run validation regularly:
-- Before every commit (pre-commit hook)
-- In CI/CD pipeline
-- Before releases
+Run validation regularly: - Before every commit (pre-commit hook) - In
+CI/CD pipeline - Before releases
 
-### 2. Coverage Monitoring
+==== 2. Coverage Monitoring
 
 Track translation coverage over time:
-```bash
+
+[source,bash]
+----
 # Generate weekly reports
 node tools/missing-translations.js --format json --output reports/coverage-$(date +%Y-%m-%d).json
-```
+----
 
-### 3. Collaborative Translation
+==== 3. Collaborative Translation
 
-Use `--create-missing` to prepare files for translators:
-```bash
+Use `+--create-missing+` to prepare files for translators:
+
+[source,bash]
+----
 # Create TODO markers for missing translations
 node tools/missing-translations.js --locale de --create-missing
 
 # Send generated file to translator
 # They search for [TODO: en] markers and translate
-```
+----
 
-### 4. Security Review
+==== 4. Security Review
 
 Regularly audit for security issues:
-```bash
+
+[source,bash]
+----
 # Check for XSS and injection vulnerabilities
 node tools/locale-validator.js --json | jq '.errors[] | select(.severity == "high")'
-```
+----
 
-## Development
+=== Development
 
 To modify or extend these tools:
 
-### Add New Validation Rule
+==== Add New Validation Rule
 
-Edit `locale-validator.js`:
+Edit `+locale-validator.js+`:
 
-```javascript
+[source,javascript]
+----
 checkCustomRule(locale, data, path = '') {
   for (const [key, value] of Object.entries(data)) {
     const fullPath = path ? `${path}.${key}` : key;
@@ -272,29 +282,34 @@ checkCustomRule(locale, data, path = '') {
     }
   }
 }
-```
+----
 
-Then call it in `validateLocale()`:
-```javascript
+Then call it in `+validateLocale()+`:
+
+[source,javascript]
+----
 validateLocale(locale, { file, data, rawContent }, allLocales) {
   // ... existing checks ...
   this.checkCustomRule(locale, data);
 }
-```
+----
 
-### Add New Report Format
+==== Add New Report Format
 
-Edit `missing-translations.js`:
+Edit `+missing-translations.js+`:
 
-```javascript
+[source,javascript]
+----
 formatCustom(analysis) {
   // Your format logic
   return formattedOutput;
 }
-```
+----
 
-Update `formatReport()`:
-```javascript
+Update `+formatReport()+`:
+
+[source,javascript]
+----
 formatReport(analysis, referenceKeys) {
   switch (this.format) {
     case 'custom':
@@ -302,34 +317,40 @@ formatReport(analysis, referenceKeys) {
     // ... existing formats ...
   }
 }
-```
+----
 
-## Troubleshooting
+=== Troubleshooting
 
-### "Directory not found" Error
+==== "`Directory not found`" Error
 
 Ensure locale directory exists:
-```bash
+
+[source,bash]
+----
 mkdir -p locales
 node tools/locale-validator.js --dir ./locales
-```
+----
 
-### "Reference locale not found" Error
+==== "`Reference locale not found`" Error
 
 Check reference locale file exists:
-```bash
+
+[source,bash]
+----
 ls locales/en.json
 node tools/locale-validator.js --reference en
-```
+----
 
-### Permission Denied
+==== Permission Denied
 
 Make scripts executable:
-```bash
+
+[source,bash]
+----
 chmod +x tools/locale-validator.js
 chmod +x tools/missing-translations.js
-```
+----
 
-## License
+=== License
 
 MIT - Same as i18n-node

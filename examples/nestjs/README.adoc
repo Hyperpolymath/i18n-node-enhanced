@@ -1,39 +1,43 @@
-# NestJS Integration Example
+== NestJS Integration Example
 
 Enterprise TypeScript framework integration with dependency injection.
 
-## Features
+=== Features
 
-- Dependency injection pattern
-- Module-based architecture
-- Guards and interceptors for locale detection
-- Decorator-based translation
-- Request-scoped i18n instances
-- Swagger/OpenAPI documentation support
+* Dependency injection pattern
+* Module-based architecture
+* Guards and interceptors for locale detection
+* Decorator-based translation
+* Request-scoped i18n instances
+* Swagger/OpenAPI documentation support
 
-## Setup
+=== Setup
 
-```bash
+[source,bash]
+----
 npm install
-```
+----
 
-## Run
+=== Run
 
-```bash
+[source,bash]
+----
 npm run dev
-```
+----
 
-## Test
+=== Test
 
-```bash
+[source,bash]
+----
 npm test
-```
+----
 
-## Usage
+=== Usage
 
-### Module Registration
+==== Module Registration
 
-```typescript
+[source,typescript]
+----
 import { I18nModule } from './i18n/i18n.module';
 
 @Module({
@@ -46,11 +50,12 @@ import { I18nModule } from './i18n/i18n.module';
   ]
 })
 export class AppModule {}
-```
+----
 
-### Controller with Translation
+==== Controller with Translation
 
-```typescript
+[source,typescript]
+----
 import { Controller, Get } from '@nestjs/common';
 import { I18nService } from './i18n/i18n.service';
 
@@ -65,10 +70,10 @@ export class GreetingsController {
     };
   }
 }
-```
+----
 
-## API Endpoints
+=== API Endpoints
 
-- `GET /greetings` - Get localized greeting
-- `GET /greetings/:locale` - Get greeting in specific locale
-- `GET /catalog` - Get current catalog
+* `+GET /greetings+` - Get localized greeting
+* `+GET /greetings/:locale+` - Get greeting in specific locale
+* `+GET /catalog+` - Get current catalog

@@ -1,28 +1,31 @@
-# ReScript Bindings for i18n
+== ReScript Bindings for i18n
 
 Type-safe ReScript bindings for i18n with zero-cost abstractions.
 
-## Installation
+=== Installation
 
-```bash
+[source,bash]
+----
 npm install @i18n/rescript-bindings i18n
-```
+----
 
-## Configuration
+=== Configuration
 
-Add to your `bsconfig.json`:
+Add to your `+bsconfig.json+`:
 
-```json
+[source,json]
+----
 {
   "bs-dependencies": ["@i18n/rescript-bindings"]
 }
-```
+----
 
-## Usage
+=== Usage
 
-### Basic Configuration
+==== Basic Configuration
 
-```rescript
+[source,rescript]
+----
 open I18n
 
 let config = I18nConfig.make(
@@ -34,42 +37,47 @@ let config = I18nConfig.make(
 )
 
 let i18n = I18n.make(config)
-```
+----
 
-### Simple Translation
+==== Simple Translation
 
-```rescript
+[source,rescript]
+----
 let greeting = i18n->I18n.__("Hello")
 // => "Hello" or "Hallo" depending on locale
-```
+----
 
-### Translation with Arguments
+==== Translation with Arguments
 
-```rescript
+[source,rescript]
+----
 let message = i18n->I18n.__WithArgs("Hello %s", ["World"])
 // => "Hello World"
-```
+----
 
-### Plural Forms
+==== Plural Forms
 
-```rescript
+[source,rescript]
+----
 let catMessage = i18n->I18n.__n("%s cat", "%s cats", 3)
 // => "3 cats"
-```
+----
 
-### MessageFormat
+==== MessageFormat
 
-```rescript
+[source,rescript]
+----
 let formatted = i18n->I18n.__mf(
   "{N, plural, one{# item} other{# items}}",
   Js.Dict.fromArray([("N", 5)])
 )
 // => "5 items"
-```
+----
 
-### Locale Management
+==== Locale Management
 
-```rescript
+[source,rescript]
+----
 // Set locale
 let newLocale = i18n->I18n.setLocale("de")
 
@@ -78,21 +86,23 @@ let current = i18n->I18n.getLocale()
 
 // Get all available locales
 let locales = i18n->I18n.getLocales()
-```
+----
 
-### Get Translation Catalog
+==== Get Translation Catalog
 
-```rescript
+[source,rescript]
+----
 // Get all catalogs
 let allCatalogs = i18n->I18n.getCatalog()
 
 // Get specific locale catalog
 let deCatalog = i18n->I18n.getCatalogForLocale("de")
-```
+----
 
-## Express Integration
+=== Express Integration
 
-```rescript
+[source,rescript]
+----
 open I18n
 
 let i18n = I18n.make(config)
@@ -101,34 +111,37 @@ let i18n = I18n.make(config)
 let middleware = (req, res, next) => {
   i18n->I18n.init(req, res, next)
 }
-```
+----
 
-## Type Safety
+=== Type Safety
 
 ReScript provides compile-time type safety:
 
-```rescript
+[source,rescript]
+----
 // ✓ Correct
 let msg = i18n->I18n.__("greeting")
 
 // ✗ Compile error - wrong type
 let msg = i18n->I18n.__(123)
-```
+----
 
-## Advanced Patterns
+=== Advanced Patterns
 
-### Pipe-first API
+==== Pipe-first API
 
-```rescript
+[source,rescript]
+----
 let translation =
   i18n
   ->I18n.setLocale("de")
   ->I18n.__("Welcome")
-```
+----
 
-### Pattern Matching
+==== Pattern Matching
 
-```rescript
+[source,rescript]
+----
 let getGreeting = (locale: string): string => {
   switch locale {
   | "en" => i18n->I18n.__("Hello")
@@ -137,42 +150,39 @@ let getGreeting = (locale: string): string => {
   | _ => i18n->I18n.__("Hello")
   }
 }
-```
+----
 
-### Option Handling
+==== Option Handling
 
-```rescript
+[source,rescript]
+----
 let config = I18nConfig.make(
   ~locales=["en", "de"],
   ~cookie=Some("locale"),
   ~queryParameter=Some("lang"),
   ()
 )
-```
+----
 
-## Performance
+=== Performance
 
-ReScript bindings compile to zero-cost JavaScript with:
-- No runtime overhead
-- Inline function calls
-- Dead code elimination
-- Tree shaking support
+ReScript bindings compile to zero-cost JavaScript with: - No runtime
+overhead - Inline function calls - Dead code elimination - Tree shaking
+support
 
-## Best Practices
+=== Best Practices
 
-1. **Type Everything**: Leverage ReScript's type system
-2. **Use Pipe-first**: More readable with `->` operator
-3. **Pattern Match**: Handle all locale cases explicitly
-4. **Immutability**: ReScript enforces immutability by default
+[arabic]
+. *Type Everything*: Leverage ReScript’s type system
+. *Use Pipe-first*: More readable with `+->+` operator
+. *Pattern Match*: Handle all locale cases explicitly
+. *Immutability*: ReScript enforces immutability by default
 
-## Examples
+=== Examples
 
-See `examples/` directory for:
-- Basic usage
-- Express integration
-- React integration
-- Advanced patterns
+See `+examples/+` directory for: - Basic usage - Express integration -
+React integration - Advanced patterns
 
-## License
+=== License
 
 MIT

@@ -1,41 +1,45 @@
-# Next.js + i18n Example
+== Next.js + i18n Example
 
-This example demonstrates how to integrate i18n with Next.js for internationalization.
+This example demonstrates how to integrate i18n with Next.js for
+internationalization.
 
-## Features
+=== Features
 
-- ✅ Server-side rendering (SSR) with i18n
-- ✅ Static generation (SSG) with i18n
-- ✅ API routes with translation support
-- ✅ Client-side locale switching
-- ✅ Next.js i18n routing integration
-- ✅ TypeScript support
+* ✅ Server-side rendering (SSR) with i18n
+* ✅ Static generation (SSG) with i18n
+* ✅ API routes with translation support
+* ✅ Client-side locale switching
+* ✅ Next.js i18n routing integration
+* ✅ TypeScript support
 
-## Setup
+=== Setup
 
-```bash
+[source,bash]
+----
 npm install
-```
+----
 
-## Development
+=== Development
 
-```bash
+[source,bash]
+----
 npm run dev
-```
+----
 
 Visit http://localhost:3000
 
-## Locale Switching
+=== Locale Switching
 
 The example supports locale switching via:
 
-1. **URL path**: `/en`, `/de`, `/fr`, `/es`
-2. **Browser detection**: Automatic locale detection
-3. **UI buttons**: Click language buttons to switch
+[arabic]
+. *URL path*: `+/en+`, `+/de+`, `+/fr+`, `+/es+`
+. *Browser detection*: Automatic locale detection
+. *UI buttons*: Click language buttons to switch
 
-## Project Structure
+=== Project Structure
 
-```
+....
 nextjs/
 ├── pages/
 │   ├── _app.tsx          # App component with i18n setup
@@ -49,23 +53,25 @@ nextjs/
 │   └── es.json
 ├── next.config.js        # Next.js i18n configuration
 └── package.json
-```
+....
 
-## How It Works
+=== How It Works
 
-### 1. i18n Configuration (_app.tsx)
+==== 1. i18n Configuration (_app.tsx)
 
-```typescript
+[source,typescript]
+----
 const i18n = new I18n({
   locales: ['en', 'de', 'fr', 'es'],
   defaultLocale: 'en',
   directory: path.join(process.cwd(), 'locales')
 });
-```
+----
 
-### 2. Server-Side Rendering (getStaticProps)
+==== 2. Server-Side Rendering (getStaticProps)
 
-```typescript
+[source,typescript]
+----
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
   i18n.setLocale(locale);
 
@@ -78,11 +84,12 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => {
     }
   };
 };
-```
+----
 
-### 3. API Routes
+==== 3. API Routes
 
-```typescript
+[source,typescript]
+----
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   const { locale = 'en' } = req.query;
   i18n.setLocale(locale as string);
@@ -90,14 +97,16 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   const catalog = i18n.getCatalog(locale as string);
   res.status(200).json({ locale, catalog });
 }
-```
+----
 
-## Translation Files
+=== Translation Files
 
-Create JSON files in `locales/`:
+Create JSON files in `+locales/+`:
 
-**locales/en.json**:
-```json
+*locales/en.json*:
+
+[source,json]
+----
 {
   "home": {
     "title": "Welcome to Next.js with i18n",
@@ -106,52 +115,58 @@ Create JSON files in `locales/`:
     "changeLanguage": "Change Language"
   }
 }
-```
+----
 
-## API Endpoints
+=== API Endpoints
 
-### Get All Translations
+==== Get All Translations
 
-```
+....
 GET /api/translations?locale=de
-```
+....
 
 Response:
-```json
+
+[source,json]
+----
 {
   "locale": "de",
   "catalog": { ... }
 }
-```
+----
 
-### Get Specific Translation
+==== Get Specific Translation
 
-```
+....
 GET /api/translations?locale=de&key=home.title
-```
+....
 
 Response:
-```json
+
+[source,json]
+----
 {
   "key": "home.title",
   "locale": "de",
   "translation": "Willkommen bei Next.js mit i18n"
 }
-```
+----
 
-## Production Deployment
+=== Production Deployment
 
 For production, disable file updates:
 
-```typescript
+[source,typescript]
+----
 const i18n = new I18n({
   updateFiles: false,
   autoReload: false,
   syncFiles: false
 });
-```
+----
 
-## Learn More
+=== Learn More
 
-- [Next.js i18n Documentation](https://nextjs.org/docs/advanced-features/i18n-routing)
-- [i18n-node Documentation](../../README.md)
+* https://nextjs.org/docs/advanced-features/i18n-routing[Next.js i18n
+Documentation]
+* link:../../README.md[i18n-node Documentation]
