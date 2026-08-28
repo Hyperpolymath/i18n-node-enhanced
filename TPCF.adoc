@@ -1,0 +1,303 @@
+== Tri-Perimeter Contribution Framework (TPCF)
+
+=== Project Status
+
+*i18n-node-enhanced* operates under the *Tri-Perimeter Contribution
+Framework (TPCF)*.
+
+*Current Perimeter:* *3 (Community Sandbox)*
+
+'''''
+
+=== What is TPCF?
+
+The Tri-Perimeter Contribution Framework is a graduated trust model for
+open source contributions that balances: - *Security* - Protection of
+critical infrastructure - *Openness* - Welcoming community participation
+- *Scalability* - Sustainable governance as projects grow
+
+==== Three Perimeters
+
+....
+┌─────────────────────────────────────────────────────┐
+│ Perimeter 3: Community Sandbox (Open Contribution) │
+│ • Anyone can submit PRs                             │
+│ • All contributions reviewed before merge           │
+│ • Public discussion and iteration                   │
+│ • No commit access required                         │
+└─────────────────────────────────────────────────────┘
+              ↑
+              │ Trust & Track Record
+              ↓
+┌─────────────────────────────────────────────────────┐
+│ Perimeter 2: Community Review (Moderation Barrier) │
+│ • Established contributors                          │
+│ • Faster review cycles                              │
+│ • Non-security-sensitive changes                    │
+│ • 1+ maintainer approval required                   │
+└─────────────────────────────────────────────────────┘
+              ↑
+              │ Maintainer Status
+              ↓
+┌─────────────────────────────────────────────────────┐
+│ Perimeter 1: Core (Trust Barrier)                  │
+│ • Direct commit access                              │
+│ • Security-sensitive code                           │
+│ • Release management                                │
+│ • Maintainer privileges                             │
+└─────────────────────────────────────────────────────┘
+....
+
+'''''
+
+=== Current Implementation
+
+==== Perimeter 3 (Default): Community Sandbox
+
+*Who:* Everyone (you are here!)
+
+*Access:* - Submit pull requests from forks - Open issues and
+discussions - Comment on existing PRs - Participate in community
+discussions
+
+*Process:* 1. Fork the repository 2. Make changes in your fork 3. Submit
+pull request 4. Maintainers review (may take 1-14 days) 5. Iteration
+based on feedback 6. Approval and merge by maintainer
+
+*No Restrictions:* - No barrier to entry - No approval needed to fork or
+experiment - No time limits on contributions - No requirement to join
+any communication channels
+
+*Examples:* - Bug fixes - Feature additions - Documentation improvements
+- Example integrations - Translation contributions - Test additions
+
+'''''
+
+==== Perimeter 2: Community Review (Future)
+
+*Status:* Not yet implemented (project currently has single maintainer)
+
+*Criteria for Access:* - 6+ months of quality contributions - 10+ merged
+pull requests - Active in discussions and reviews - Demonstrated domain
+expertise - Code of Conduct adherence
+
+*Additional Privileges:* - Faster review cycles (priority queue) - Can
+approve Perimeter 3 PRs - Can merge non-security changes after 1
+approval - Access to maintainer discussions (read-only)
+
+*Process:* - Nominated by existing maintainer(s) - Vote by current
+maintainers (75% approval) - 3-month probationary period
+
+'''''
+
+==== Perimeter 1: Core (Trust Barrier)
+
+*Status:* Currently limited to project lead
+
+*Current Members:* - Marcus Spiegel (@mashpie) - Project Lead
+
+*Criteria for Access:* - All Perimeter 2 criteria - 12+ months of
+sustained contribution - Security expertise or specialized domain
+knowledge - Commitment to maintenance duties (4-8 hours/month) - See
+MAINTAINERS.md
+
+*Privileges:* - Direct commit access (with PR preferred) - Security
+advisory access - NPM publish rights - Release management - Governance
+participation - Can approve security-sensitive changes
+
+*Responsibilities:* - Code review within 7 days - Security response per
+SECURITY.md - Community support and mentorship - Maintain Code of
+Conduct - Participate in releases
+
+'''''
+
+=== Security-Sensitive Areas
+
+Regardless of perimeter, these areas require *Perimeter 1* approval:
+
+==== Core Security
+
+* `+audit/forensics.js+` - Audit and encryption
+* `+automation/api.js+` - Authentication and authorization
+* `+SECURITY.md+` - Security policy
+* `+.well-known/security.txt+` - Security contact
+
+==== Critical Infrastructure
+
+* Release workflows (`+.github/workflows/release.yml+`)
+* NPM publishing configuration
+* CI/CD security scanning
+* Dependency updates (security fixes)
+
+==== Enterprise Adapters (Authentication)
+
+* API key handling in adapters
+* OAuth implementations
+* Credential management
+* Encryption key handling
+
+'''''
+
+=== Progression Path
+
+==== From Perimeter 3 → Perimeter 2
+
+[arabic]
+. *Build Track Record:*
+* 10+ merged PRs over 6+ months
+* Quality code with tests and documentation
+* Responsive to review feedback
+. *Demonstrate Expertise:*
+* Deep knowledge of specific area (e.g., enterprise adapters, WASM core)
+* Helpful in discussions and issue triage
+* Good judgment on security implications
+. *Show Commitment:*
+* Regular participation (not just one-off contributions)
+* Help new contributors
+* Positive community interactions
+. *Apply:*
+* Self-nominate or be nominated in GitHub Discussions
+* Existing maintainers review
+* Decision within 30 days
+
+==== From Perimeter 2 → Perimeter 1
+
+[arabic]
+. *All Perimeter 2 criteria plus:*
+* 12+ months sustained contribution
+* Security or specialized expertise
+* Available for maintenance duties
+. *Demonstrate Leadership:*
+* Mentor other contributors
+* Drive features to completion
+* Participate in architectural discussions
+. *Nomination:*
+* Must be nominated by existing Perimeter 1 member
+* Unanimous approval required (if <5 members) or 75% vote
+* 90-day notice period before vote
+
+'''''
+
+=== Why TPCF?
+
+==== Benefits
+
+*For New Contributors:* - ✅ No gatekeeping - anyone can contribute - ✅
+Clear path to increased access - ✅ Recognition of contributions - ✅
+Safe learning environment
+
+*For Maintainers:* - ✅ Security protection for critical code - ✅
+Sustainable governance - ✅ Distributed trust model - ✅ Reduced
+bottlenecks
+
+*For Users:* - ✅ Confidence in security - ✅ Transparent governance -
+✅ Sustainable project health - ✅ Active community
+
+==== Comparison to Traditional Models
+
+[cols=",,,",options="header",]
+|===
+|Model |Entry Barrier |Security |Scalability
+|*Benevolent Dictator* |High |High |Low
+|*Commit Bit* |Medium |Medium |Medium
+|*TPCF* |None (P3) |High (P1) |High
+|*Fully Open* |None |Low |High
+|===
+
+TPCF provides *both* openness (Perimeter 3) and security (Perimeter 1).
+
+'''''
+
+=== FAQ
+
+==== Q: Why not just use branch protection?
+
+*A:* Branch protection is binary (commit or not). TPCF provides
+graduated access with clear progression.
+
+==== Q: How is this different from GitHub’s permission system?
+
+*A:* GitHub has Read/Triage/Write/Maintain/Admin. TPCF adds workflow and
+trust model on top.
+
+==== Q: Can I contribute without joining Perimeter 2/1?
+
+*A:* Absolutely! Most contributions happen at Perimeter 3. Progression
+is optional.
+
+==== Q: How long does PR review take at Perimeter 3?
+
+*A:* Target: 7 days. Reality: 1-14 days depending on complexity and
+maintainer availability.
+
+==== Q: What if I disagree with a perimeter decision?
+
+*A:* Discuss in GitHub Discussions. Decisions can be appealed. Process
+is documented.
+
+==== Q: Does TPCF apply to documentation?
+
+*A:* Yes, but documentation PRs often merge faster (lower security
+risk).
+
+==== Q: Can companies sponsor perimeter access?
+
+*A:* No. Access is merit-based only. Companies can sponsor development
+time, not access.
+
+'''''
+
+=== Emotional Safety
+
+TPCF supports emotional safety by:
+
+* *Reversibility:* Experimental contributions can be reverted without
+stigma
+* *Clarity:* Clear expectations reduce anxiety
+* *Recognition:* Graduated trust acknowledges contributions
+* *Autonomy:* Contributors choose their level of engagement
+* *Safety:* Perimeter 1 protects critical infrastructure from
+stress/burnout
+
+See CODE_OF_CONDUCT.md for full emotional safety commitments.
+
+'''''
+
+=== Implementation
+
+==== Current State
+
+* ✅ Perimeter 3 fully operational (open contribution)
+* ⏳ Perimeter 2 not yet needed (single maintainer)
+* ✅ Perimeter 1 operational (project lead)
+
+==== Future Plans
+
+* Activate Perimeter 2 when 2nd maintainer joins
+* Document specific security-sensitive file patterns
+* Automate perimeter checks in CI/CD
+* Create mentorship program for progression
+
+'''''
+
+=== Contact
+
+* *General Questions:* GitHub Discussions
+* *Apply for Perimeter 2/1:* GitHub Discussions → "`Maintainer
+Applications`"
+* *Security:* See SECURITY.md
+* *Code of Conduct:* See CODE_OF_CONDUCT.md
+
+'''''
+
+=== References
+
+* *TPCF Specification:* (Original RSR framework documentation)
+* *MAINTAINERS.md:* MAINTAINERS.md
+* *CONTRIBUTING.md:* CONTRIBUTING.md
+* *CODE_OF_CONDUCT.md:* CODE_OF_CONDUCT.md
+
+'''''
+
+*Version:* 1.0 *Effective Date:* 2025-11-22 *Review Cycle:* Quarterly
+*Next Review:* 2026-02-22

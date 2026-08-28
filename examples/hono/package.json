@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "hono": "^4.11.3",
-    "@hono/node-server": "^1.14.1",
+    "@hono/node-server": "^2.0.11",
     "i18n": "file:../.."
   },
   "engines": {

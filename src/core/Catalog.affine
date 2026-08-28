@@ -1,0 +1,281 @@
+// SPDX-License-Identifier: MPL-2.0
+// Ported via Harvard Engine (Semantic pass)
+
+module Catalog;
+
+// SPDX-License-Identifier: MPL-2.0
+@@ocaml.doc("
+  Catalog - Immutable translation catalog with structural sharing
+
+  Catalogs are immutable data structures that hold translations.
+  Updates create new catalogs sharing unchanged structure.
+")
+
+open Locale
+
+@ocaml.doc("A translation value - either a simple string or plural forms")
+struct rec translationValue =
+  | Simple(string)
+  | Plural({
+      zero: option<string>,
+      one: option<string>,
+      two: option<string>,
+      few: option<string>,
+      many: option<string>,
+      other: string,
+    })
+  | Nested(translations)
+and translations = Belt.Map.String.t<translationValue>
+
+struct metadata { {
+  version: option<string>,
+  lastModified: option<float>,
+  source: option<string>,
+}
+
+@ocaml.doc("A catalog holds translations for a single locale")
+struct t { {
+  locale: Locale.t,
+  translations: translations,
+  metadata: metadata,
+}
+
+@ocaml.doc("Create an empty catalog for a locale")
+fn empty = (locale: Locale.t): t => {
+  locale,
+  translations: Belt.Map.String.empty,
+  metadata: {
+    version: None,
+    lastModified: None,
+    source: None,
+  },
+}
+
+@ocaml.doc("Get a translation by key, supporting dot notation")
+fn get = (catalog: t, key: string): option<translationValue> => {
+  fn parts = key->String.split(".")
+
+  fn rec traverse = (translations: translations, path: array<string>): option<translationValue> => {
+    fn len = Array.length(path)
+    if len == 0 {
+      None
+    } else if len == 1 {
+      path->Array.get(0)->Option.flatMap(single => translations->Belt.Map.String.get(single))
+    } else {
+      switch path->Array.get(0) {
+      | None => None
+      | Some(head) =>
+        fn rest = path->Array.sliceToEnd(~start=1)
+        switch translations->Belt.Map.String.get(head) {
+        | Some(Nested(nested)) => traverse(nested, rest)
+        | _ => None
+        }
+      }
+    }
+  }
+
+  traverse(catalog.translations, parts)
+}
+
+@ocaml.doc("Get a simple string translation")
+fn getString = (catalog: t, key: string): option<string> => {
+  switch get(catalog, key) {
+  | Some(Simple(s)) => Some(s)
+  | Some(Plural({other})) => Some(other)
+  | _ => None
+  }
+}
+
+@ocaml.doc("Set a translation, returning a new catalog")
+fn set = (catalog: t, key: string, value: translationValue): t => {
+  fn parts = key->String.split(".")
+
+  fn rec updateNested = (
+    translations: translations,
+    path: array<string>,
+    value: translationValue,
+  ): translations => {
+    fn len = Array.length(path)
+    if len == 0 {
+      translations
+    } else if len == 1 {
+      switch path->Array.get(0) {
+      | None => translations
+      | Some(single) => translations->Belt.Map.String.set(single, value)
+      }
+    } else {
+      switch path->Array.get(0) {
+      | None => translations
+      | Some(head) => {
+          fn rest = path->Array.sliceToEnd(~start=1)
+          fn existing = switch translations->Belt.Map.String.get(head) {
+          | Some(Nested(nested)) => nested
+          | _ => Belt.Map.String.empty
+          }
+          fn updated = updateNested(existing, rest, value)
+          translations->Belt.Map.String.set(head, Nested(updated))
+        }
+      }
+    }
+  }
+
+  {
+    ...catalog,
+    translations: updateNested(catalog.translations, parts, value),
+    metadata: {
+      ...catalog.metadata,
+      lastModified: Some(Js.Date.now()),
+    },
+  }
+}
+
+@ocaml.doc("Check if a key exists")
+fn has = (catalog: t, key: string): bool => get(catalog, key)->Option.isSome
+
+@ocaml.doc("Get all keys in the catalog (flattened)")
+fn keys = (catalog: t): array<string> => {
+  fn rec collect = (translations: translations, prefix: string): array<string> => {
+    translations
+    ->Belt.Map.String.toArray
+    ->Array.flatMap(((key, value)) => {
+      fn fullKey = prefix == "" ? key : `${prefix}.${key}`
+      switch value {
+      | Simple(_) | Plural(_) => [fullKey]
+      | Nested(nested) => collect(nested, fullKey)
+      }
+    })
+  }
+  collect(catalog.translations, "")
+}
+
+@ocaml.doc("Merge two catalogs, with the second taking precedence")
+fn merge = (base: t, overlay: t): t => {
+  fn rec mergeTranslations = (a: translations, b: translations): translations => {
+    fn allKeys =
+      Array.concat(
+        a->Belt.Map.String.keysToArray,
+        b->Belt.Map.String.keysToArray,
+      )->Belt.Set.String.fromArray->Belt.Set.String.toArray
+
+    allKeys->Array.reduce(Belt.Map.String.empty, (acc, key) => {
+      fn value = switch (a->Belt.Map.String.get(key), b->Belt.Map.String.get(key)) {
+      | (_, Some(v)) => v
+      | (Some(v), None) => v
+      | (None, None) => Simple("") // unreachable
+      }
+      acc->Belt.Map.String.set(key, value)
+    })
+  }
+
+  {
+    locale: overlay.locale,
+    translations: mergeTranslations(base.translations, overlay.translations),
+    metadata: overlay.metadata,
+  }
+}
+
+@ocaml.doc("Parse a catalog from JSON")
+fn fromJson = (locale: Locale.t, json: Js.Json.t): result<t, string> => {
+  fn rec parseValue = (json: Js.Json.t): option<translationValue> => {
+    switch Js.Json.classify(json) {
+    | Js.Json.JSONString(s) => Some(Simple(s))
+    | Js.Json.JSONObject(obj) => {
+        // Check if it's plural forms or nested
+        fn hasPlural = obj->Js.Dict.get("other")->Option.isSome
+        if hasPlural {
+          fn getStr = key =>
+            obj->Js.Dict.get(key)->Option.flatMap(v =>
+              switch Js.Json.classify(v) {
+              | Js.Json.JSONString(s) => Some(s)
+              | _ => None
+              }
+            )
+          switch getStr("other") {
+          | Some(other) =>
+            Some(
+              Plural({
+                zero: getStr("zero"),
+                one: getStr("one"),
+                two: getStr("two"),
+                few: getStr("few"),
+                many: getStr("many"),
+                other,
+              }),
+            )
+          | None => None
+          }
+        } else {
+          // Nested translations
+          fn nested =
+            obj
+            ->Js.Dict.entries
+            ->Array.reduce(Belt.Map.String.empty, (acc, (key, value)) => {
+              switch parseValue(value) {
+              | Some(v) => acc->Belt.Map.String.set(key, v)
+              | None => acc
+              }
+            })
+          Some(Nested(nested))
+        }
+      }
+    | _ => None
+    }
+  }
+
+  switch Js.Json.classify(json) {
+  | Js.Json.JSONObject(obj) => {
+      fn translations =
+        obj
+        ->Js.Dict.entries
+        ->Array.reduce(Belt.Map.String.empty, (acc, (key, value)) => {
+          switch parseValue(value) {
+          | Some(v) => acc->Belt.Map.String.set(key, v)
+          | None => acc
+          }
+        })
+      Ok({
+        locale,
+        translations,
+        metadata: {
+          version: None,
+          lastModified: Some(Js.Date.now()),
+          source: None,
+        },
+      })
+    }
+  | _ => Error("Expected JSON object at root")
+  }
+}
+
+@ocaml.doc("Serialize a catalog to JSON")
+fn toJson = (catalog: t): Js.Json.t => {
+  fn rec valueToJson = (value: translationValue): Js.Json.t => {
+    switch value {
+    | Simple(s) => Js.Json.string(s)
+    | Plural({zero, one, two, few, many, other}) => {
+        fn obj = Js.Dict.empty()
+        zero->Option.forEach(v => obj->Js.Dict.set("zero", Js.Json.string(v)))
+        one->Option.forEach(v => obj->Js.Dict.set("one", Js.Json.string(v)))
+        two->Option.forEach(v => obj->Js.Dict.set("two", Js.Json.string(v)))
+        few->Option.forEach(v => obj->Js.Dict.set("few", Js.Json.string(v)))
+        many->Option.forEach(v => obj->Js.Dict.set("many", Js.Json.string(v)))
+        obj->Js.Dict.set("other", Js.Json.string(other))
+        Js.Json.object_(obj)
+      }
+    | Nested(nested) => {
+        fn obj = Js.Dict.empty()
+        nested->Belt.Map.String.forEach((key, value) => {
+          obj->Js.Dict.set(key, valueToJson(value))
+        })
+        Js.Json.object_(obj)
+      }
+    }
+  }
+
+  fn obj = Js.Dict.empty()
+  catalog.translations->Belt.Map.String.forEach((key, value) => {
+    obj->Js.Dict.set(key, valueToJson(value))
+  })
+  Js.Json.object_(obj)
+}
+

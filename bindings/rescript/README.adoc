@@ -1,0 +1,188 @@
+== ReScript Bindings for i18n
+
+Type-safe ReScript bindings for i18n with zero-cost abstractions.
+
+=== Installation
+
+[source,bash]
+----
+npm install @i18n/rescript-bindings i18n
+----
+
+=== Configuration
+
+Add to your `+bsconfig.json+`:
+
+[source,json]
+----
+{
+  "bs-dependencies": ["@i18n/rescript-bindings"]
+}
+----
+
+=== Usage
+
+==== Basic Configuration
+
+[source,rescript]
+----
+open I18n
+
+let config = I18nConfig.make(
+  ~locales=["en", "de", "fr"],
+  ~defaultLocale="en",
+  ~directory="./locales",
+  ~objectNotation=true,
+  ()
+)
+
+let i18n = I18n.make(config)
+----
+
+==== Simple Translation
+
+[source,rescript]
+----
+let greeting = i18n->I18n.__("Hello")
+// => "Hello" or "Hallo" depending on locale
+----
+
+==== Translation with Arguments
+
+[source,rescript]
+----
+let message = i18n->I18n.__WithArgs("Hello %s", ["World"])
+// => "Hello World"
+----
+
+==== Plural Forms
+
+[source,rescript]
+----
+let catMessage = i18n->I18n.__n("%s cat", "%s cats", 3)
+// => "3 cats"
+----
+
+==== MessageFormat
+
+[source,rescript]
+----
+let formatted = i18n->I18n.__mf(
+  "{N, plural, one{# item} other{# items}}",
+  Js.Dict.fromArray([("N", 5)])
+)
+// => "5 items"
+----
+
+==== Locale Management
+
+[source,rescript]
+----
+// Set locale
+let newLocale = i18n->I18n.setLocale("de")
+
+// Get current locale
+let current = i18n->I18n.getLocale()
+
+// Get all available locales
+let locales = i18n->I18n.getLocales()
+----
+
+==== Get Translation Catalog
+
+[source,rescript]
+----
+// Get all catalogs
+let allCatalogs = i18n->I18n.getCatalog()
+
+// Get specific locale catalog
+let deCatalog = i18n->I18n.getCatalogForLocale("de")
+----
+
+=== Express Integration
+
+[source,rescript]
+----
+open I18n
+
+let i18n = I18n.make(config)
+
+// Use as middleware
+let middleware = (req, res, next) => {
+  i18n->I18n.init(req, res, next)
+}
+----
+
+=== Type Safety
+
+ReScript provides compile-time type safety:
+
+[source,rescript]
+----
+// ✓ Correct
+let msg = i18n->I18n.__("greeting")
+
+// ✗ Compile error - wrong type
+let msg = i18n->I18n.__(123)
+----
+
+=== Advanced Patterns
+
+==== Pipe-first API
+
+[source,rescript]
+----
+let translation =
+  i18n
+  ->I18n.setLocale("de")
+  ->I18n.__("Welcome")
+----
+
+==== Pattern Matching
+
+[source,rescript]
+----
+let getGreeting = (locale: string): string => {
+  switch locale {
+  | "en" => i18n->I18n.__("Hello")
+  | "de" => i18n->I18n.__("Hallo")
+  | "fr" => i18n->I18n.__("Bonjour")
+  | _ => i18n->I18n.__("Hello")
+  }
+}
+----
+
+==== Option Handling
+
+[source,rescript]
+----
+let config = I18nConfig.make(
+  ~locales=["en", "de"],
+  ~cookie=Some("locale"),
+  ~queryParameter=Some("lang"),
+  ()
+)
+----
+
+=== Performance
+
+ReScript bindings compile to zero-cost JavaScript with: - No runtime
+overhead - Inline function calls - Dead code elimination - Tree shaking
+support
+
+=== Best Practices
+
+[arabic]
+. *Type Everything*: Leverage ReScript’s type system
+. *Use Pipe-first*: More readable with `+->+` operator
+. *Pattern Match*: Handle all locale cases explicitly
+. *Immutability*: ReScript enforces immutability by default
+
+=== Examples
+
+See `+examples/+` directory for: - Basic usage - Express integration -
+React integration - Advanced patterns
+
+=== License
+
+MIT

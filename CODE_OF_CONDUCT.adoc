@@ -1,0 +1,269 @@
+== Contributor Covenant Code of Conduct
+
+=== Our Pledge
+
+We as members, contributors, and leaders pledge to make participation in
+our community a harassment-free experience for everyone, regardless of
+age, body size, visible or invisible disability, ethnicity, sex
+characteristics, gender identity and expression, level of experience,
+education, socio-economic status, nationality, personal appearance,
+race, caste, color, religion, or sexual identity and orientation.
+
+We pledge to act and interact in ways that contribute to an open,
+welcoming, diverse, inclusive, and healthy community.
+
+=== Our Standards
+
+Examples of behavior that contributes to a positive environment for our
+community include:
+
+* Demonstrating empathy and kindness toward other people
+* Being respectful of differing opinions, viewpoints, and experiences
+* Giving and gracefully accepting constructive feedback
+* Accepting responsibility and apologizing to those affected by our
+mistakes, and learning from the experience
+* Focusing on what is best not just for us as individuals, but for the
+overall community
+* Using welcoming and inclusive language
+* Being patient with new contributors and learners
+* Respecting cultural and linguistic diversity (especially relevant for
+i18n!)
+
+Examples of unacceptable behavior include:
+
+* The use of sexualized language or imagery, and sexual attention or
+advances of any kind
+* Trolling, insulting or derogatory comments, and personal or political
+attacks
+* Public or private harassment
+* Publishing others’ private information, such as a physical or email
+address, without their explicit permission
+* Passive-aggressive behavior or deliberately undermining others
+* Demanding free labor or support beyond reasonable community norms
+* Other conduct which could reasonably be considered inappropriate in a
+professional setting
+
+=== Enforcement Responsibilities
+
+Community leaders are responsible for clarifying and enforcing our
+standards of acceptable behavior and will take appropriate and fair
+corrective action in response to any behavior that they deem
+inappropriate, threatening, offensive, or harmful.
+
+Community leaders have the right and responsibility to remove, edit, or
+reject comments, commits, code, wiki edits, issues, and other
+contributions that are not aligned to this Code of Conduct, and will
+communicate reasons for moderation decisions when appropriate.
+
+=== Scope
+
+This Code of Conduct applies within all community spaces, and also
+applies when an individual is officially representing the community in
+public spaces. Examples of representing our community include using an
+official e-mail address, posting via an official social media account,
+or acting as an appointed representative at an online or offline event.
+
+=== Enforcement
+
+Instances of abusive, harassing, or otherwise unacceptable behavior may
+be reported to the community leaders responsible for enforcement at
+marcus.spiegel@gmail.com or via GitHub’s reporting mechanisms.
+
+All complaints will be reviewed and investigated promptly and fairly.
+
+All community leaders are obligated to respect the privacy and security
+of the reporter of any incident.
+
+=== Enforcement Guidelines
+
+Community leaders will follow these Community Impact Guidelines in
+determining the consequences for any action they deem in violation of
+this Code of Conduct:
+
+==== 1. Correction
+
+*Community Impact*: Use of inappropriate language or other behavior
+deemed unprofessional or unwelcome in the community.
+
+*Consequence*: A private, written warning from community leaders,
+providing clarity around the nature of the violation and an explanation
+of why the behavior was inappropriate. A public apology may be
+requested.
+
+==== 2. Warning
+
+*Community Impact*: A violation through a single incident or series of
+actions.
+
+*Consequence*: A warning with consequences for continued behavior. No
+interaction with the people involved, including unsolicited interaction
+with those enforcing the Code of Conduct, for a specified period of
+time. This includes avoiding interactions in community spaces as well as
+external channels like social media. Violating these terms may lead to a
+temporary or permanent ban.
+
+==== 3. Temporary Ban
+
+*Community Impact*: A serious violation of community standards,
+including sustained inappropriate behavior.
+
+*Consequence*: A temporary ban from any sort of interaction or public
+communication with the community for a specified period of time. No
+public or private interaction with the people involved, including
+unsolicited interaction with those enforcing the Code of Conduct, is
+allowed during this period. Violating these terms may lead to a
+permanent ban.
+
+==== 4. Permanent Ban
+
+*Community Impact*: Demonstrating a pattern of violation of community
+standards, including sustained inappropriate behavior, harassment of an
+individual, or aggression toward or disparagement of classes of
+individuals.
+
+*Consequence*: A permanent ban from any sort of public interaction
+within the community.
+
+=== i18n-Specific Considerations
+
+As an internationalization library, we are especially committed to:
+
+==== Linguistic Respect
+
+* Respecting all languages and writing systems equally
+* Not making jokes or dismissive comments about any language, script, or
+locale
+* Understanding that translation is complex and culturally sensitive
+work
+* Valuing native speakers’ expertise and lived experience with their
+languages
+
+==== Cultural Sensitivity
+
+* Being aware that cultural norms vary across communities
+* Not imposing Western-centric assumptions about software or
+communication
+* Respecting right-to-left languages, non-Latin scripts, and complex
+text rendering
+* Understanding that "`offensive`" content varies by culture (but
+harassment is universal)
+
+==== Accessibility
+
+* Ensuring our community spaces are accessible to non-native English
+speakers
+* Being patient with language barriers in communication
+* Providing translation assistance when possible
+* Using clear, simple English when communicating with international
+contributors
+
+==== Translation Work
+
+* Crediting translators appropriately for their contributions
+* Not using machine translation without review by native speakers
+* Respecting the intellectual labor involved in translation work
+* Understanding that some concepts don’t translate directly across
+languages
+
+=== Attribution
+
+This Code of Conduct is adapted from the
+https://www.contributor-covenant.org[Contributor Covenant], version 2.1,
+available at
+https://www.contributor-covenant.org/version/2/1/code_of_conduct.html.
+
+Community Impact Guidelines were inspired by
+https://github.com/mozilla/diversity[Mozilla’s code of conduct
+enforcement ladder].
+
+The i18n-specific section is original to this project and reflects our
+commitment to linguistic and cultural diversity.
+
+For answers to common questions about this code of conduct, see the FAQ
+at https://www.contributor-covenant.org/faq. Translations are available
+at https://www.contributor-covenant.org/translations.
+
+=== Tri-Perimeter Contribution Framework (TPCF)
+
+This project operates under the *Tri-Perimeter Contribution Framework
+(TPCF)*:
+
+==== Perimeter 1: Core (Trust Barrier)
+
+* Direct commit access
+* Security-sensitive code
+* Requires maintainer status
+
+==== Perimeter 2: Community Review (Moderation Barrier)
+
+* Pull requests from established contributors
+* Non-security-sensitive changes
+* Requires 1+ maintainer approval
+
+==== Perimeter 3: Community Sandbox (Current Default)
+
+* Open contribution from anyone
+* All contributions welcome via PR
+* Reviewed before merge
+
+*Current Status:* This project operates at *Perimeter 3 (Community
+Sandbox)*.
+
+All contributors start at Perimeter 3. Progression to Perimeter 2 or 1
+is based on: - Sustained quality contributions - Community engagement -
+Alignment with project values - See MAINTAINERS.md for details
+
+=== Emotional Safety
+
+We recognize that open source work can be emotionally demanding. We
+commit to:
+
+* *Reversibility:* Experimental changes can be reverted without stigma
+* *Anxiety Reduction:* Clear processes reduce uncertainty
+* *Psychological Safety:* Safe to ask questions and make mistakes
+* *Work-Life Balance:* Respecting contributors’ time and energy
+* *Burnout Prevention:* No expectation of 24/7 availability
+
+=== Reporting
+
+==== How to Report
+
+[arabic]
+. *Email:* marcus.spiegel@gmail.com (private, encrypted if needed)
+. *GitHub:* Use GitHub’s "`Report abuse`" feature for public incidents
+. *Anonymous:* Use [SurveyMonkey form] (to be created) for anonymous
+reports
+
+==== What to Include
+
+* Your contact information (optional for anonymous reports)
+* Names (usernames) of people involved
+* Description of the incident
+* Links to relevant public content (issues, PRs, comments)
+* Any additional context
+
+==== What Happens Next
+
+[arabic]
+. *Acknowledgment:* Within 48 hours
+. *Investigation:* Review of incident and context
+. *Decision:* Enforcement action determined (if any)
+. *Communication:* Reporter informed of outcome
+. *Appeal:* Subject may appeal enforcement decision
+
+==== Confidentiality
+
+* Reporter identity kept confidential unless legally required to
+disclose
+* Incident details shared only with maintainers on need-to-know basis
+* Public disclosure only if necessary for community safety
+
+=== Modifications
+
+This Code of Conduct may be revised at any time by project maintainers.
+Changes will be announced in GitHub Discussions.
+
+'''''
+
+*Version:* 1.0 (based on Contributor Covenant 2.1) *Effective Date:*
+2025-11-22 *Last Reviewed:* 2025-11-22 *Next Review:* 2026-11-22
